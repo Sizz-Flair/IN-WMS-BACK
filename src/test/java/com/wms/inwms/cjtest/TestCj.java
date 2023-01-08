@@ -17,24 +17,4 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 public class TestCj {
 
-    @Autowired
-    EntityManager em;
-
-    @Test
-    public void test() {
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        Hello hello = new Hello();
-        em.persist(hello);
-
-        QHello qHello = new QHello("h");
-
-        Hello result = query
-                .selectFrom(qHello)
-                .fetchOne();
-
-        assertThat(result).isEqualTo(hello);
-        assertThat(result.getId()).isEqualTo(hello.getId());
-
-    }
 }

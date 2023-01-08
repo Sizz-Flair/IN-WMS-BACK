@@ -21,6 +21,7 @@ public class JasperController {
         response.setContentType("application/pdf");
         JasperExportManager jem = JasperExportManager.getInstance(new SimpleJasperReportsContext());
         JasperPrint jp = null;
+
         jp = JasperFillManager.fillReport(Jasper.reportMap.get("CJ"), data, new JREmptyDataSource());
         jem.exportToPdfStream(jp, response.getOutputStream());
         response.getOutputStream().flush();
