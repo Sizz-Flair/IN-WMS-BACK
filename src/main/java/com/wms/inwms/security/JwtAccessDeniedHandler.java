@@ -15,12 +15,13 @@ import org.springframework.stereotype.Component;
 public class JwtAccessDeniedHandler implements AuthenticationEntryPoint {
     private final ObjectMapper mapper;
 
-    public JwtAccessDeniedHandler(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
 
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        sendErrorResponse(response, "권한없음");
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException)
+            throws IOException, ServletException {
+        sendErrorResponse(response,"권한 없대");
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
