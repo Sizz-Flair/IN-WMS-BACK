@@ -3,25 +3,22 @@ package com.wms.inwms.domain.user;
 
 import com.wms.inwms.domain.base.BaseRepo;
 import com.wms.inwms.domain.base.BaseService;
-import com.wms.inwms.domain.user.User;
-import com.wms.inwms.domain.user.UserRepository;
 import java.util.Optional;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UserService extends BaseService<User, Long> {
-    private BCryptPasswordEncoder encoder;
+import javax.inject.Inject;
 
+@Service
+@Slf4j
+public class UserService extends BaseService<User, Long> {
     private UserRepository userRepository;
 
     @Autowired
-    public UserService(BCryptPasswordEncoder encoder, UserRepository userRepository) {
-        super((BaseRepo)userRepository);
-        this.encoder = encoder;
+    public UserService(UserRepository userRepository) {
+        super(userRepository);
         this.userRepository = userRepository;
     }
 

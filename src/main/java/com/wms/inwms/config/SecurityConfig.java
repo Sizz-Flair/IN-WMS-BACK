@@ -37,13 +37,14 @@ public class SecurityConfig {
 //        factory.addContextValves(new RewriteValve());
 //    }
 
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
+    private final TokenProperties tokenProperties;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-        return http
+        return http.csrf().disable()
                 .cors()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -58,7 +59,7 @@ public class SecurityConfig {
                 //설명상..UsernamePasswordAuthenticationFilter 전에 jwtAuthenticationFilter(커스텀 필터) 추가한다고 명시해논 config라고 한다..음
                 .addFilterBefore(jwtAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class) //커스텀 필터 추가..UsernamePasswordAuthenticationFilter 먼저 실행
                 //설명상.. 알려진 클래스 Filter중 하나 뒤에 추가할 수 있다..그럼 위 FilterBefor와 같이 JwtAuthenticationFilter 필터 뒤에 AuthorizationFilter가 추가되는거다..
-                .addFilterAfter(new AuthorizationFilter(), JwtAuthenticationFilter.class)
+                .addFilterAfter(new AuthorizationFilter(tokenProperties), JwtAuthenticationFilter.class)
                 .authorizeRequests().antMatchers("/").permitAll().antMatchers("/static/**").permitAll()
                 .anyRequest().authenticated().and().build();
 
@@ -96,7 +97,7 @@ public class SecurityConfig {
 
         //return authenticationConfiguration.getAuthenticationManager();
 
-        return new ProviderManager(new JwtAuthenticationProvider(null));
+        return new ProviderManager(new JwtAuthenticationProvider(bCryptPasswordEncoder, customUserDetailsService));
     }
 
 
@@ -120,7 +121,7 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter("/proxy");
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager); // 확인필요
-        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler("NitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKeyNitBoot2JwtSecretKey"));
+        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(tokenProperties));
         return jwtAuthenticationFilter;
     }
 

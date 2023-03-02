@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtAccessDeniedHandler implements AuthenticationEntryPoint {
-    private final ObjectMapper mapper;
-
 
     @Override
     public void commence(HttpServletRequest request,
