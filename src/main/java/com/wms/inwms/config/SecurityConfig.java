@@ -119,7 +119,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter("/proxy");
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(tokenProperties.getLoginPath());
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager); // 확인필요
         jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(tokenProperties));
         return jwtAuthenticationFilter;

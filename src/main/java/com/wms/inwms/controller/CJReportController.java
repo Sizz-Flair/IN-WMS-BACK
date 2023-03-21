@@ -33,7 +33,7 @@ public class CJReportController implements ErrorController {
         this.excelUtil = excelUtil;
     }
 
-    @GetMapping({"/test"})
+    @PostMapping({"/test"})
     public String testController() {
         return "Test";
     }

@@ -36,9 +36,9 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         if (headerIsValid(header))
             try {
                 Claims claims = getClaims(getToken(header));
-                Optional.<String>ofNullable(claims.getSubject()).ifPresent(username -> setUserContext(claims, username));
+                Optional.ofNullable(claims.getSubject()).ifPresent(username -> setUserContext(claims, username));
             } catch (Exception exception) {}
-        filterChain.doFilter((ServletRequest)request, (ServletResponse)response);
+        filterChain.doFilter(request, response);
     }
 
     private boolean headerIsValid(String header) {
@@ -51,8 +51,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     private Claims getClaims(String token) {
         try {
-            byte[] keyBytes = (byte[])Decoders.BASE64.decode(this.tokenProperties.getSecret());
-            Claims Claims = (Claims)Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(keyBytes)).build().parseClaimsJws(token).getBody();
+            byte[] keyBytes = Decoders.BASE64.decode(this.tokenProperties.getSecret());
+            Claims Claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(keyBytes)).build().parseClaimsJws(token).getBody();
             return Claims;
         } catch (Exception e) {
             throw e;

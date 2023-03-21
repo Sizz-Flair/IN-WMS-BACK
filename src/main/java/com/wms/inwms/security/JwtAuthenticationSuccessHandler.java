@@ -26,7 +26,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
     public JwtAuthenticationSuccessHandler(TokenProperties tokenProperties) {
         this.tokenProperties = tokenProperties;
-        byte[] keyBytes = (byte[])Decoders.BASE64.decode(tokenProperties.getSecret());
+        byte[] keyBytes = Decoders.BASE64.decode(tokenProperties.getSecret());
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 

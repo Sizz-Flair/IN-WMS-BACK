@@ -26,9 +26,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
         if (!this.bCryptPasswordEncoder.matches(password, userDetails.getPassword()))
             throw new BadCredentialsException("패스워드를 확인해주세요");
-        return (Authentication)new UsernamePasswordAuthenticationToken(userDetails
+        return new UsernamePasswordAuthenticationToken(userDetails
                 .getUsername(), null, userDetails
-
                 .getAuthorities());
     }
 
