@@ -108,7 +108,6 @@ public class CJDto extends BaseModel<Long> {
         this.hwbNo = hwbNo;
         this.printData = printData;
     }
-
     public Long getId() {
         return this.id;
     }

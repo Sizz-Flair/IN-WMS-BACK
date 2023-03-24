@@ -27,7 +27,7 @@ public abstract class WmsBaseService<T, ID extends Serializable> extends WmsFilt
     public <S extends T> S save(S object) {
         return (S)this.repository.save(object);
     }
-
+    @Transactional
     protected JPAQuery<T> select() {
         return new JPAQuery(this.em);
     }

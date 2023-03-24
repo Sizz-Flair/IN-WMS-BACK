@@ -13,13 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CJService extends BaseService<CJDto, Long> {
-    private static final Logger log = LoggerFactory.getLogger(com.wms.inwms.domain.cj.CJService.class);
-
     private CJRepository cjRepository;
 
     @Autowired
     public CJService(CJRepository cjRepository) {
-        super((BaseRepo)cjRepository);
+        super(cjRepository);
         this.cjRepository = cjRepository;
     }
 

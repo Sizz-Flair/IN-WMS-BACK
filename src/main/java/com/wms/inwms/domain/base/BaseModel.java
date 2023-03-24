@@ -16,7 +16,7 @@ public abstract class BaseModel<PK extends Serializable> implements Persistable<
     private static final long serialVersionUID = 1L;
 
     @Column(updatable = false)
-    protected Instant created;
+    public Instant created;
 
     public void setCreated(Instant created) {
         this.created = created;
