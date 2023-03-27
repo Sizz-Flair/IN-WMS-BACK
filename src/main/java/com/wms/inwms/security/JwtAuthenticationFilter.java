@@ -18,29 +18,27 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    private static final Logger log = LoggerFactory.getLogger(com.wms.inwms.security.JwtAuthenticationFilter.class);
-
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public JwtAuthenticationFilter(String url) {
-        super((RequestMatcher)new AntPathRequestMatcher(url, "POST"));
+        super(new AntPathRequestMatcher(url, "POST"));
         this.objectMapper = new ObjectMapper();
     }
 
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         UserCredentials user = getUserCredentials(request);
         UsernamePasswordAuthenticationToken token = createAuthenticationToken(user);
-        return getAuthenticationManager().authenticate((Authentication)token);
+        return getAuthenticationManager().authenticate(token);
     }
 
     private UserCredentials getUserCredentials(HttpServletRequest request) throws IOException {
-        return (UserCredentials)this.objectMapper.readValue((InputStream)request.getInputStream(), UserCredentials.class);
+        return this.objectMapper.readValue(request.getInputStream(), UserCredentials.class);
     }
 
     private UsernamePasswordAuthenticationToken createAuthenticationToken(UserCredentials user) {
-        return new UsernamePasswordAuthenticationToken(user
-                .getUsername(), user
-                .getPassword(),
+        return new UsernamePasswordAuthenticationToken(
+                user.getUsername(),
+                user.getPassword(),
                 Collections.emptyList());
     }
 }

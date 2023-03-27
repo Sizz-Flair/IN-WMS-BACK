@@ -1,6 +1,7 @@
 package com.wms.inwms.security;
 
 
+import com.wms.inwms.domain.user.UserService;
 import com.wms.inwms.security.TokenProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import static com.wms.inwms.domain.agent.AgentService.agentInfo;
 
 public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final Key key;
@@ -40,7 +43,8 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
     private String createToken(Authentication authentication) {
         long now = System.currentTimeMillis();
-        List<String> authorities = (List<String>)authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        List<String> authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("authorities", authorities)

@@ -25,9 +25,9 @@ public class ReceiveService extends BaseService<Receive, Long> {
     public List<Receive> findByCreatedBetween() throws NullPointerException {
         LocalDateTime localDateTime = LocalDateTime.now();
 
-        Instant startDate = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-        Instant endDate = localDateTime.minusDays(10).atZone(ZoneId.systemDefault()).toInstant();
+        Instant endDate = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        Instant startDate = localDateTime.minusDays(10).atZone(ZoneId.systemDefault()).toInstant();
 
-        return repository.findByCreatedBetween(startDate, endDate).get();
+        return repository.findByCreatedBetweenOrderByIdDesc(startDate, endDate).get();
     }
 }

@@ -10,6 +10,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class JwtAuthenticationProvider implements AuthenticationProvider {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -26,9 +29,13 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
         if (!this.bCryptPasswordEncoder.matches(password, userDetails.getPassword()))
             throw new BadCredentialsException("패스워드를 확인해주세요");
-        return new UsernamePasswordAuthenticationToken(userDetails
-                .getUsername(), null, userDetails
-                .getAuthorities());
+
+        Map<String, Object> detailsInfo = new HashMap<>();
+        detailsInfo.put("role", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(
+                userDetails.getUsername(),
+                null,
+                userDetails.getAuthorities());
     }
 
     public boolean supports(Class<?> authentication) {
