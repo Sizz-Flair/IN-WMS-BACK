@@ -4,6 +4,8 @@ import com.wms.inwms.domain.receive.Receive;
 import com.wms.inwms.domain.receive.ReceiveService;
 import com.wms.inwms.domain.receive.receivelist.ReceiveList;
 import com.wms.inwms.domain.receive.receivelist.ReceiveListService;
+import com.wms.inwms.domain.response.ResponseData;
+import com.wms.inwms.domain.response.ResultData;
 import com.wms.inwms.security.TokenProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -12,6 +14,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,35 +37,55 @@ public class ReceiveController {
     private final ReceiveListService receiveListService;
     private final TokenProperties tokenProperties;
 
+    private final ResponseData responseData;
+
     @PostMapping("/receiving")
-    private Receive receiving(@RequestHeader("Authorization") String token, @RequestBody List<String> hwbNoList) {
+    private ResponseEntity<ResultData> receiving(@RequestHeader("Authorization") String token, @RequestBody List<String> hwbNoList) {
         try {
-            return saveReceive(hwbNoList, token);
+            Receive resultReceiveData = saveReceive(hwbNoList, token);
+            ResultData resultData = responseData.ResultData(resultReceiveData, "SUCCESS");
+            return ResponseEntity.ok(resultData);
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            String message = "data";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseData.ResultDataMessage(message));
         }
     }
 
     @PostMapping("/receiving/initdata")
-    private ResponseEntity<List<Receive>> findReceivingList() {
+    private ResponseEntity<ResultData> findReceivingList() {
         try{
-            return ResponseEntity.ok(receiveService.findByCreatedBetween());
+            List<Receive> receiveListData = receiveService.findByCreatedBetween();
+            ResultData resulData = responseData.ResultListData(receiveListData, "SUCCESS");
+            return ResponseEntity.ok(resulData);
         } catch(NullPointerException e) {
             e.printStackTrace();
             return ResponseEntity.noContent().build();
         }
     }
 
+    @PostMapping("/receiving/search")
+    private ResponseEntity<ResultData> findSearchReceiveData(@RequestBody Map<String, String> searchData) {
+        Instant startDate = Instant.parse(searchData.get("startDate"));
+        Instant endDate = Instant.parse(searchData.get("endDate"));
+        String receiveNumber = searchData.get("receiveNumber");
+
+        List<Receive> receiveListData = receiveService.searchReceivingData(startDate, endDate, receiveNumber);
+        return ResponseEntity.ok(responseData.ResultListData(receiveListData, "SUCCESS"));
+    }
+
     @Transactional
     protected Receive saveReceive(List<String> hwbNoList, String token) throws Exception {
-        Receive receive = Receive.builder()
-                .receiveNumber(createReceiveNumber(tokenProperties.getTokenInfo(token)))
-                .amount(new BigDecimal(hwbNoList.size())).locationId(1L).build();
-        Receive resultReceiveInfo = receiveService.save(receive);
-        receiveListService.saveAll(saveReceiveList(hwbNoList));
+        try{
+            Receive receive = Receive.builder()
+                    .receiveNumber(createReceiveNumber(tokenProperties.getTokenInfo(token)))
+                    .amount(new BigDecimal(hwbNoList.size())).locationId(1L).build();
+            Receive resultReceiveInfo = receiveService.save(receive);
+            receiveListService.saveAll(saveReceiveList(hwbNoList));
 
-        return resultReceiveInfo;
+            return resultReceiveInfo;
+        } catch (Exception e) {
+            throw new Exception();
+        }
     }
 
     private String createReceiveNumber(Claims tokenInfo) {
