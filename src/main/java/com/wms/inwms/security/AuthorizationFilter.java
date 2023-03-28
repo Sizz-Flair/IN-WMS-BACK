@@ -63,7 +63,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         User userDetails = new User(username, "", Collections.emptyList());
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, getGrantedAuthorities(claims));
         auth.setDetails(userDetails);
-        SecurityContextHolder.getContext().setAuthentication((Authentication)auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private List<SimpleGrantedAuthority> getGrantedAuthorities(Claims claims) {

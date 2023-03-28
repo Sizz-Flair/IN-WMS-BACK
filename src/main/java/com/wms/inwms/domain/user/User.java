@@ -2,10 +2,12 @@ package com.wms.inwms.domain.user;
 
 import com.wms.inwms.domain.agent.Agent;
 import com.wms.inwms.domain.base.BaseModel;
+import lombok.Getter;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
 @Table(name = "g_user")
 public class User extends BaseModel<Long> {
     @Id

@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-
 @Service
 @Slf4j
 public class UserService extends BaseService<User, Long> {
@@ -28,6 +26,10 @@ public class UserService extends BaseService<User, Long> {
 
     public Optional<User> findByUserName(String username) {
         return this.userRepository.findByUserCredentialsUsername(username);
+    }
+
+    public Optional<User> findByName(String userName) {
+        return this.userRepository.findByName(userName);
     }
 
 //    public Optional<Tuple> findByUserAllInfoList(String userId) {

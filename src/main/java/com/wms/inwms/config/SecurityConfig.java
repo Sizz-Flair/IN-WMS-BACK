@@ -1,5 +1,6 @@
 package com.wms.inwms.config;
 
+import com.wms.inwms.domain.user.UserService;
 import com.wms.inwms.security.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.valves.rewrite.RewriteValve;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     private final TokenProperties tokenProperties;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
+    private final UserService userService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -121,7 +123,7 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(tokenProperties.getLoginPath());
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager); // 확인필요
-        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(tokenProperties));
+        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(tokenProperties, userService));
         return jwtAuthenticationFilter;
     }
 

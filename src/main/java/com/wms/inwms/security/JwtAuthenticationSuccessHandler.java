@@ -1,8 +1,8 @@
 package com.wms.inwms.security;
 
 
+import com.wms.inwms.domain.user.User;
 import com.wms.inwms.domain.user.UserService;
-import com.wms.inwms.security.TokenProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -20,17 +20,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import static com.wms.inwms.domain.agent.AgentService.agentInfo;
-
 public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final Key key;
 
     private final TokenProperties tokenProperties;
+    private final UserService userService;
 
-    public JwtAuthenticationSuccessHandler(TokenProperties tokenProperties) {
+    public JwtAuthenticationSuccessHandler(TokenProperties tokenProperties, UserService userService) {
         this.tokenProperties = tokenProperties;
         byte[] keyBytes = Decoders.BASE64.decode(tokenProperties.getSecret());
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.userService = userService;
     }
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
@@ -44,10 +44,12 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
     private String createToken(Authentication authentication) {
         long now = System.currentTimeMillis();
         List<String> authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        User user = userService.findByName(authentication.getName()).get();
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("authorities", authorities)
+                .claim("agent", user.getAgent().getAgentName())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + (this.tokenProperties.getExpiration() * 1000)))
                 .signWith(this.key, SignatureAlgorithm.HS512)
