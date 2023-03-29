@@ -1,6 +1,7 @@
 package com.wms.inwms.controller;
 
 import com.wms.inwms.domain.receive.Receive;
+import com.wms.inwms.domain.receive.ReceiveDto;
 import com.wms.inwms.domain.receive.ReceiveService;
 import com.wms.inwms.domain.receive.receivelist.ReceiveList;
 import com.wms.inwms.domain.receive.receivelist.ReceiveListService;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -25,18 +27,15 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
 public class ReceiveController {
+
     private final ReceiveService receiveService;
     private final ReceiveListService receiveListService;
     private final TokenProperties tokenProperties;
-
     private final ResponseData responseData;
 
     @PostMapping("/receiving")
@@ -64,12 +63,14 @@ public class ReceiveController {
     }
 
     @PostMapping("/receiving/search")
-    private ResponseEntity<ResultData> findSearchReceiveData(@RequestBody Map<String, String> searchData) {
-        Instant startDate = Instant.parse(searchData.get("startDate"));
-        Instant endDate = Instant.parse(searchData.get("endDate"));
-        String receiveNumber = searchData.get("receiveNumber");
+    private ResponseEntity<ResultData> findSearchReceiveData(@RequestBody ReceiveDto receiveDto) {
+
+        String receiveNumber = receiveDto.getReceiveNumber().orElse("");
+        Instant startDate = receiveDto.getStartDate().orElse(Instant.EPOCH);
+        Instant endDate = receiveDto.getEndDate().orElse(Instant.now());
 
         List<Receive> receiveListData = receiveService.searchReceivingData(startDate, endDate, receiveNumber);
+
         return ResponseEntity.ok(responseData.ResultListData(receiveListData, "SUCCESS"));
     }
 
