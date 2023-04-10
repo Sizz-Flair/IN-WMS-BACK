@@ -14,11 +14,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 @Getter
+@Table(name = "return_order")
 public class Return extends BaseModel<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name="order_num")
     private String orderNum;
 
@@ -43,8 +45,15 @@ public class Return extends BaseModel<Long> {
     @Column(name="weight")
     private BigDecimal weight;
 
-    @Column(name="item_name")
-    private String itemName;
+    @Column(name="item_num")
+    private String itemNum;
+
+    @Column(name="shipper")
+    private String shipper;
+
+    @Column(name="agent_id")
+    private Long agentId;
+
     @Override
     public Long getId() {
             return id;
