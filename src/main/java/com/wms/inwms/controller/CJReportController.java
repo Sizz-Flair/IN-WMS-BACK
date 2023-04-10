@@ -40,6 +40,8 @@ public class CJReportController implements ErrorController {
 
     @PostMapping({"/find"})
     public List<CJDto> find() throws Exception {
+        String version = org.springframework.core.SpringVersion.getVersion();
+        System.out.println(version);
         return this.cjService.findAll();
     }
 

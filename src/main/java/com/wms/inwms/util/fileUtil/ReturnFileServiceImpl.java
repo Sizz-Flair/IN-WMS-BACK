@@ -3,40 +3,45 @@ package com.wms.inwms.util.fileUtil;
 import com.wms.inwms.domain.returnOrder.Return;
 import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.fileUtil.fileDto.DataDto;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
+@Component
 public class ReturnFileServiceImpl implements FileService {
 
     private final FileUtil fileUtil;
-    private final DataDto dataDto;
 
-    public Map<String, String> readFile(File file) {
+    public Map<String, String> readFile(File file) throws IOException, CustomException {
         Map<String, String> returnData = new HashMap<>();
         try{
-            if(fileUtil.fileTypeCheck(file.getName())) throw new CustomException("Invalid file type: " + file.getName());
 
-            Workbook workbook = WorkbookFactory.create(file);
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.iterator();
+            throw new CustomException("");
 
-            Optional<Map<String, String>> dataCheck = Optional.of(checkDataVaildation(rowIterator));
-            returnData = dataCheck.orElseGet(() -> new HashMap<>());
-            return returnData;
-        } catch(IOException e) {
-            returnData = Map.of("error", "등록오류 발생");
-            return returnData;
+
+//            if(fileUtil.fileTypeCheck(file.getName())) throw new CustomException("Invalid file type: " + file.getName());
+//
+//            Workbook workbook = WorkbookFactory.create(file);
+//            Sheet sheet = workbook.getSheetAt(0);
+//            Iterator<Row> rowIterator = sheet.iterator();
+//
+//            Optional<Map<String, String>> dataCheck = Optional.of(checkDataVaildation(rowIterator));
+//
+//            returnData = dataCheck.orElseThrow(() -> new CustomException("데이터가 없습니다."));
+//
+//            return returnData;
         } catch (CustomException e) {
-            returnData = Map.of("error", "파일타입이 맞지 않습니다.");
-            return returnData;
+            throw new CustomException(e.getMessage());
         }
     }
-
 
     //Map<String ,Integer> titleData = titleSeq(rowIterator);
 
