@@ -20,52 +20,50 @@ public class ReturnFileServiceImpl implements FileService {
 
     private final FileUtil fileUtil;
 
-    public Map<String, String> readFile(File file) throws IOException, CustomException {
-        Map<String, String> returnData = new HashMap<>();
+    public List<Map<String, String>> readFile(File file) throws IOException, CustomException {
         try{
+            if(fileUtil.fileTypeCheck(file.getName())) throw new CustomException("Invalid file type: " + file.getName());
 
-            throw new CustomException("");
+            Workbook workbook = WorkbookFactory.create(file);
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
 
+            Optional<List<Map<String, String>>> dataCheck = Optional.of(checkDataValidation(rowIterator));
 
-//            if(fileUtil.fileTypeCheck(file.getName())) throw new CustomException("Invalid file type: " + file.getName());
-//
-//            Workbook workbook = WorkbookFactory.create(file);
-//            Sheet sheet = workbook.getSheetAt(0);
-//            Iterator<Row> rowIterator = sheet.iterator();
-//
-//            Optional<Map<String, String>> dataCheck = Optional.of(checkDataVaildation(rowIterator));
-//
-//            returnData = dataCheck.orElseThrow(() -> new CustomException("데이터가 없습니다."));
-//
-//            return returnData;
+            List<Map<String, String>> returnData = dataCheck.orElseGet(() -> {
+                return null;
+            });
+
+            //orElseThrow(() -> new CustomException("데이터가 없습니다."));
+
+            return returnData;
         } catch (CustomException e) {
             throw new CustomException(e.getMessage());
+        } catch (IOException e) {
+            throw new IOException(e.getMessage());
         }
     }
 
-    //Map<String ,Integer> titleData = titleSeq(rowIterator);
+    private List<Map<String, String>> checkDataValidation(Iterator<Row> rowIterator) {
+        List<Map<String, String>> resultListData = new ArrayList<>();
 
-//                Return.builder()
-//                        .number(row.getCell(titleData.get(DataDto.ReturnEnum.NUMBER.getValue())).getStringCellValue())
-//                        .originNumber(row.getCell(titleData.get(DataDto.ReturnEnum.ORIGIN_NUMBER.getValue())).getStringCellValue())
-//                        .deliveryCom(row.getCell(titleData.get(DataDto.ReturnEnum.DELIVERY_CODE.getValue())).getStringCellValue())
-
-    private Map<String, String> checkDataVaildation(Iterator<Row> rowIterator) {
-        Map<String, String> errorMsg = new HashMap<>();
         while(rowIterator.hasNext()) {
             Row row = rowIterator.next();
             Iterator<Cell> cellIterator = row.cellIterator();
-
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
                 switch (cell.getCellType()) {
                     case BLANK:
-                        errorMsg.put("error", "행/" + row.getRowNum() + " 열/" + cell.getColumnIndex() + " 값지 존재하지 않습니다");
+                        resultListData.add(Map.of("error", "행/" + row.getRowNum() + " 열/" + cell.getColumnIndex() + " 값지 존재하지 않습니다"));
                         break;
                 }
             }
         }
-        return errorMsg;
+        return resultListData;
+    }
+
+    private List<Map<String, String>> putValues(Iterator<Row> rowIterator) {
+        Row row = rowIterator.
     }
 
     private Map<String, Integer> titleSeq(Iterator<Row> rowIterator) {
