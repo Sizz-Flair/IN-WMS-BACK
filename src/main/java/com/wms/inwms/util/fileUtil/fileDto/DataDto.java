@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 public class DataDto {
-    public enum ReturnEnum{
+    public enum ReturnTitleEnum{
         NO("No"),
         NUMBER("반품 송장"),
         ORIGIN_NUMBER("원송장"),
@@ -14,6 +14,29 @@ public class DataDto {
         UPPER_LOCATION("장치위치(상위)"),
         LOWER_LOCATION("장치위치(하위)"),
         AGENT_NAME("업체명"),
+        RETURN_DATE_TIME("입고 일자"),
+        AIR_OCEAN_TYPE("항공/해상"),
+        ETC_MEMO("비고");
+
+        private final String value;
+
+        ReturnTitleEnum(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum ReturnEnum{
+        NO("no"),
+        NUMBER("number"),
+        ORIGIN_NUMBER("originNumber"),
+        DELIVERY_CODE("deliveryCom"),
+        UPPER_LOCATION("장치위치(상위)"),
+        LOWER_LOCATION("장치위치(하위)"),
+        AGENT_NAME("agency"),
         RETURN_DATE_TIME("입고 일자"),
         AIR_OCEAN_TYPE("항공/해상"),
         ETC_MEMO("비고");

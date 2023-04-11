@@ -8,5 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface FileService<T> {
-    Map<String, String> readFile(File file) throws IOException, CustomException;
+    List<Map<String, String>> readFile(File file) throws IOException, CustomException;
+    List<T> checkFile(File file) throws IOException, CustomException;
 }

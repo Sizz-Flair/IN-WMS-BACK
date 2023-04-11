@@ -54,6 +54,9 @@ public class Return extends BaseModel<Long> {
     @Column(name="agent_id")
     private Long agentId;
 
+    @Transient
+    private String error;
+
     @Override
     public Long getId() {
             return id;
