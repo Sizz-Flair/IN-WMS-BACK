@@ -19,9 +19,4 @@ public class ReturnService extends BaseService<Return, Long> {
     public List<Return> findAll() {
         return this.returnRepository.findAll();
     }
-
-
-
-
-
 }

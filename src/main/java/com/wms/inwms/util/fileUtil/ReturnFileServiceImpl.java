@@ -4,31 +4,30 @@ import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.fileUtil.fileDto.DataDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
-import org.springframework.stereotype.Component;
 
-import java.io.File;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.util.*;
 
 
 @RequiredArgsConstructor
-@Component
+@Service
 public class ReturnFileServiceImpl implements FileService {
 
     private final FileUtil fileUtil;
 
-    public List<Map<String, String>> readFile(File file) throws IOException, CustomException {
+public List<Map<String, String>> readFile(MultipartFile file) throws IOException, CustomException {
         try{
-            if(fileUtil.fileTypeCheck(file.getName())) throw new CustomException("Invalid file type: " + file.getName());
+            if(fileUtil.fileTypeCheck(file.getOriginalFilename())) throw new CustomException("Invalid file type: " + file.getName());
 
-            Workbook workbook = WorkbookFactory.create(file);
+            Workbook workbook = WorkbookFactory.create(file.getInputStream());
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.iterator();
 
             Optional<List<Map<String, String>>> dataCheck = Optional.of(checkDataValidation(rowIterator));
             dataCheck.orElseThrow(() -> new CustomException(""));
-
-            //List<Map<String, String>> resultData = getMaps(rowIterator, dataCheck);
 
             return dataCheck.get();
         } catch (CustomException e) {
@@ -62,17 +61,23 @@ public class ReturnFileServiceImpl implements FileService {
                     default: dataCheck(titleStringValues.get(cell.getColumnIndex()),cell.getStringCellValue(), resultData);
                 }
             }
+            resultListData.add(resultData);
         }
         return resultListData;
     }
 
     public void dataCheck(String columnName, String data, Map map) {
         try{
-            switch (DataDto.ReturnTitleEnum.valueOf(columnName)){
-                case NUMBER: map.put("number",data); break;
-                case ORIGIN_NUMBER: map.put("originNumber", data); break;
-                case DELIVERY_CODE: map.put("deliveryCode", data); break;
-            }
+            if(DataDto.ReturnTitleEnum.NO.getValue().equals(columnName)) map.put("number",data);
+            if(DataDto.ReturnTitleEnum.NUMBER.getValue().equals(columnName)) map.put("number",data);
+            if(DataDto.ReturnTitleEnum.ORIGIN_NUMBER.getValue().equals(columnName)) map.put("originNumber",data);
+            if(DataDto.ReturnTitleEnum.DELIVERY_CODE.getValue().equals(columnName)) map.put("deliveryCode",data);
+            if(DataDto.ReturnTitleEnum.UPPER_LOCATION.getValue().equals(columnName)) map.put("upperLocation",data);
+            if(DataDto.ReturnTitleEnum.LOWER_LOCATION.getValue().equals(columnName)) map.put("lowerLocation",data);
+            if(DataDto.ReturnTitleEnum.AGENT_NAME.getValue().equals(columnName)) map.put("agentName",data);
+            if(DataDto.ReturnTitleEnum.RETURN_DATE_TIME.getValue().equals(columnName)) map.put("returnDateTime",data);
+            if(DataDto.ReturnTitleEnum.AIR_OCEAN_TYPE.getValue().equals(columnName)) map.put("ariOceanType",data);
+            if(DataDto.ReturnTitleEnum.ETC_MEMO.getValue().equals(columnName)) map.put("etcMemo",data);
         } catch(IllegalArgumentException e) {
             throw new IllegalArgumentException("엑셀 양식과 다릅니다.");
         }

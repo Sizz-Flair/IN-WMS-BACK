@@ -7,6 +7,7 @@ import com.wms.inwms.domain.receive.receivelist.ReceiveList;
 import com.wms.inwms.domain.receive.receivelist.ReceiveListService;
 import com.wms.inwms.domain.response.ResponseData;
 import com.wms.inwms.domain.response.ResultData;
+import com.wms.inwms.domain.response.ResultDataList;
 import com.wms.inwms.security.TokenProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -51,11 +52,11 @@ public class ReceiveController {
     }
 
     @PostMapping("/receiving/initdata")
-    private ResponseEntity<ResultData> findReceivingList() {
+    private ResponseEntity<ResultDataList> findReceivingList() {
         try{
             List<Receive> receiveListData = receiveService.findByCreatedBetween();
-            ResultData resulData = responseData.ResultListData(receiveListData, "SUCCESS");
-            return ResponseEntity.ok(resulData);
+            ResultDataList resulDataList = responseData.ResultListData(receiveListData, "SUCCESS");
+            return ResponseEntity.ok(resulDataList);
         } catch(NullPointerException e) {
             e.printStackTrace();
             return ResponseEntity.noContent().build();
@@ -63,7 +64,7 @@ public class ReceiveController {
     }
 
     @PostMapping("/receiving/search")
-    private ResponseEntity<ResultData> findSearchReceiveData(@RequestBody ReceiveDto receiveDto) {
+    private ResponseEntity<ResultDataList> findSearchReceiveData(@RequestBody ReceiveDto receiveDto) {
 
         String receiveNumber = receiveDto.getReceiveNumber().orElse("");
         Instant startDate = receiveDto.getStartDate().orElse(Instant.EPOCH);

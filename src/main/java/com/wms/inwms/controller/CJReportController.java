@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.wms.inwms.util.fileUtil.FileService;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.json.simple.JSONObject;
 import org.springframework.boot.web.servlet.error.ErrorController;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,10 +28,12 @@ public class CJReportController implements ErrorController {
     private final CJService cjService;
 
     private final ExcelUtil excelUtil;
+    private final Map<String, FileService> fileServiceMap;
 
-    public CJReportController(CJService cjService, ExcelUtil excelUtil) {
+    public CJReportController(CJService cjService, ExcelUtil excelUtil, Map<String, FileService> fileServiceMap) {
         this.cjService = cjService;
         this.excelUtil = excelUtil;
+        this.fileServiceMap = fileServiceMap;
     }
 
     @PostMapping({"/test"})

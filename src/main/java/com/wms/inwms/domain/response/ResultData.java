@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class ResultData<T> {
 
     public ResultData(String message) {
@@ -18,13 +19,6 @@ public class ResultData<T> {
         this.data = data;
         this.message = message;
     }
-
-    public ResultData(List<T> listData, String message) {
-        this.listData = listData;
-        this.message = message;
-    }
-
     private T data;
-    private List<T> listData;
     private String message;
 }

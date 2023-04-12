@@ -12,7 +12,6 @@ import java.util.List;
 @Service
 public class ResponseData {
 
-
     public enum MessageCode {
         SUCCESS, FAIL
     }
@@ -24,7 +23,13 @@ public class ResponseData {
         return new ResultData<T>(message);
     }
 
-    public <T extends BaseModel>ResultData ResultListData(List<T> listData, String message) {
-        return new ResultData<T>(listData, message);
+    public <T extends BaseModel>ResultDataList ResultListData(List<T> listData, String message) {
+        return new ResultDataList<T>(listData, message);
     }
+
+    public ResultData ErrorResultData(String message) {
+
+        return new ResultData("FAIL");
+    }
+
 }

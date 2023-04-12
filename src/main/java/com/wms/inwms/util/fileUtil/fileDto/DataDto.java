@@ -27,6 +27,11 @@ public class DataDto {
         public String getValue() {
             return value;
         }
+
+        public String gets() {
+            return this.name();
+        }
+
     }
 
     public enum ReturnEnum{
