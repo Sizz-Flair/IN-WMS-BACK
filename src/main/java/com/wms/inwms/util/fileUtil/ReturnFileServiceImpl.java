@@ -1,10 +1,7 @@
 package com.wms.inwms.util.fileUtil;
 
-import com.wms.inwms.domain.returnOrder.Return;
 import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.fileUtil.fileDto.DataDto;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Component;
@@ -12,8 +9,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @Component
@@ -30,43 +26,57 @@ public class ReturnFileServiceImpl implements FileService {
             Iterator<Row> rowIterator = sheet.iterator();
 
             Optional<List<Map<String, String>>> dataCheck = Optional.of(checkDataValidation(rowIterator));
-            List<Map<String, String>> resultData = getMaps(rowIterator, dataCheck);
+            dataCheck.orElseThrow(() -> new CustomException(""));
 
-            return resultData;
+            //List<Map<String, String>> resultData = getMaps(rowIterator, dataCheck);
+
+            return dataCheck.get();
         } catch (CustomException e) {
             throw new CustomException(e.getMessage());
         } catch (IOException e) {
             throw new IOException(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException();
         }
     }
 
-    private List<Map<String, String>> getMaps(Iterator<Row> rowIterator, Optional<List<Map<String, String>>> dataCheck) {
-        List<Map<String, String>> returnData = dataCheck.get().isEmpty() ? putValues(rowIterator):dataCheck.get();
-        return returnData;
-    }
+//    private List<Map<String, String>> getMaps(Iterator<Row> rowIterator, Optional<List<Map<String, String>>> dataCheck) {
+//        List<Map<String, String>> returnData = dataCheck.get().isEmpty() ? putValues(rowIterator):dataCheck.get();
+//        return returnData;
+//    }
 
     private List<Map<String, String>> checkDataValidation(Iterator<Row> rowIterator) {
         List<Map<String, String>> resultListData = new ArrayList<>();
-
         Map<Integer, String> titleStringValues = titleStringValues(rowIterator);
-
 
         while(rowIterator.hasNext()) {
             Row row = rowIterator.next();
             Iterator<Cell> cellIterator = row.cellIterator();
+            Map<String, String> resultData = new HashMap<>();
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
                 switch (cell.getCellType()) {
                     case BLANK:
-                        resultListData.add(Map.of( , "행/" + row.getRowNum() +" "+ titleStringValues.get(cell.getColumnIndex()) + " 값지 존재하지 않습니다"));
+                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "값이 없습니다.", resultData);
                         break;
-                    default: resultListData.add()
+                    default: dataCheck(titleStringValues.get(cell.getColumnIndex()),cell.getStringCellValue(), resultData);
                 }
             }
         }
         return resultListData;
     }
 
+    public void dataCheck(String columnName, String data, Map map) {
+        try{
+            switch (DataDto.ReturnTitleEnum.valueOf(columnName)){
+                case NUMBER: map.put("number",data); break;
+                case ORIGIN_NUMBER: map.put("originNumber", data); break;
+                case DELIVERY_CODE: map.put("deliveryCode", data); break;
+            }
+        } catch(IllegalArgumentException e) {
+            throw new IllegalArgumentException("엑셀 양식과 다릅니다.");
+        }
+    }
 //    Return returnData =
 //            Return
 //                    .builder()
@@ -83,7 +93,7 @@ public class ReturnFileServiceImpl implements FileService {
         while(rowIterator.hasNext()) {
             Row row = rowIterator.next();
             resultDataList.add(Map.of(DataDto.ReturnEnum.NUMBER.getValue(),
-                    row.getCell(titleValues.get(DataDto.ReturnTitleEnum.NUMBER.getValue())).getStringCellValue()));
+                    row.getCell(titleValues.get(DataDto.ReturnEnum.NUMBER.getValue())).getStringCellValue()));
         }
         return resultDataList;
     }

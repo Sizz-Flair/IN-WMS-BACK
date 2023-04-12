@@ -27,4 +27,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorCode> handleIOException(IOException e) {
         return null;
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ErrorCode> handleIllegalArgumentException(IllegalArgumentException e) { return null; }
 }
