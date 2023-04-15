@@ -1,5 +1,6 @@
 package com.wms.inwms.util.fileUtil;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.fileUtil.fileDto.DataDto;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,11 @@ import java.util.*;
 public class ReturnFileServiceImpl implements FileService {
 
     private final FileUtil fileUtil;
+    private final ObjectMapper objectMapper;
 
-public List<Map<String, String>> readFile(MultipartFile file) throws IOException, CustomException {
+public <T> List<T> readFile(MultipartFile file, Class<T> classType) throws IOException, CustomException {
         try{
-            if(fileUtil.fileTypeCheck(file.getOriginalFilename())) throw new CustomException("Invalid file type: " + file.getName());
+            fileUtil.fileTypeCheck(file.getOriginalFilename());
 
             Workbook workbook = WorkbookFactory.create(file.getInputStream());
             Sheet sheet = workbook.getSheetAt(0);
@@ -29,7 +31,9 @@ public List<Map<String, String>> readFile(MultipartFile file) throws IOException
             Optional<List<Map<String, String>>> dataCheck = Optional.of(checkDataValidation(rowIterator));
             dataCheck.orElseThrow(() -> new CustomException(""));
 
-            return dataCheck.get();
+            List<T>resultDataList = convert(dataCheck.get());
+
+            return resultDataList;
         } catch (CustomException e) {
             throw new CustomException(e.getMessage());
         } catch (IOException e) {
@@ -38,6 +42,7 @@ public List<Map<String, String>> readFile(MultipartFile file) throws IOException
             throw new IllegalArgumentException();
         }
     }
+    //List<Return> resultReturnData = objectMapper.convertValue(resultData, ArrayList.class);
 
 //    private List<Map<String, String>> getMaps(Iterator<Row> rowIterator, Optional<List<Map<String, String>>> dataCheck) {
 //        List<Map<String, String>> returnData = dataCheck.get().isEmpty() ? putValues(rowIterator):dataCheck.get();
@@ -127,5 +132,10 @@ public List<Map<String, String>> readFile(MultipartFile file) throws IOException
             firstRowMap.put(cellNumber, cell.getStringCellValue());
         }
         return firstRowMap;
+    }
+
+    private <T>List<T> convert(List<Map<String, String>> data) {
+        List<T> resultData = objectMapper.convertValue(data, ArrayList.class);
+        return resultData;
     }
 }

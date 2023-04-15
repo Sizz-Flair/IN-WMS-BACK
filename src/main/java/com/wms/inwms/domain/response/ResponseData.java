@@ -28,8 +28,6 @@ public class ResponseData {
     }
 
     public ResultData ErrorResultData(String message) {
-
         return new ResultData("FAIL");
     }
-
 }

@@ -1,5 +1,8 @@
 package com.wms.inwms.controller;
 
+import com.wms.inwms.domain.agent.AgentService;
+import com.wms.inwms.domain.mapper.cj.CJDto2;
+import com.wms.inwms.domain.mapper.cj.CjMapper;
 import com.wms.inwms.domain.receive.Receive;
 import com.wms.inwms.domain.receive.ReceiveDto;
 import com.wms.inwms.domain.receive.ReceiveService;
@@ -10,23 +13,16 @@ import com.wms.inwms.domain.response.ResultData;
 import com.wms.inwms.domain.response.ResultDataList;
 import com.wms.inwms.security.TokenProperties;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.security.Key;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -38,7 +34,75 @@ public class ReceiveController {
     private final ReceiveListService receiveListService;
     private final TokenProperties tokenProperties;
     private final ResponseData responseData;
+    private final AgentService agentService;
+    private final CjMapper cjMapper;
 
+    @PostMapping("/ttt")
+    private void ttt() {
+
+//        567213753691
+//        567213754052
+//        567213755334
+//        567213755474
+//        567213755905
+//        567213756421
+//        567213756432
+//        567213756815
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("YYYYMMdd");
+
+        //DateTimeFormatter.ofPattern("YYYYMMdd").format(Instant.now(Clock.systemUTC()));
+
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
+        String mpckey = LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd")) + "_30244464" + "567213753691";
+        String rcvrNm = "김현진";
+        String rcvrTelNo1 = "010";
+        String rcvrTelNo2 = "4024";
+        String rcvrTelNo3 = "3740";
+        String rcvrZipNo = "21400";
+        String rcvrAddr = "인천광역시 부평구 안남로 15번길 24";
+        String rcvrdetailAddr = "중앙하이츠 102동 1601호";
+        String ORI_INVC_NO = "567213753691";
+        String gdsNm = "슈퍼컴퓨터";
+        Long gdsQty = 1L;
+
+
+
+        CJDto2 cjDto2 = CJDto2.builder()
+                .custUseNo("TESTORDER-4") // 송장과 1:1 매칭
+                .oriOrdNo("TESTORDER-ORI-4")
+                .mpckKey(mpckey + ORI_INVC_NO)
+                .sendrNm(rcvrNm)
+                .sendrTelNo1(rcvrTelNo1)
+                .sendrTelNo2(rcvrTelNo2)
+                .sendrTelNo3(rcvrTelNo3)
+                .sendrZipNo(rcvrZipNo)
+                .sendrAddr(rcvrAddr)
+                .sendrDetailAddr(rcvrdetailAddr)
+                .gdsNm(gdsNm)
+                .gdsQty(gdsQty)
+                .remark1("remark").prtSt("02")
+                .build();
+
+//        CJDto2 cjDto2 = CJDto2.builder()
+//                .custUseNo("3870307236412")
+//                .mpckKey(mpckey)
+//                .rcvrNm(rcvrNm)
+//                .rcvrTelNo1(rcvrTelNo1)
+//                .rcvrTelNo2(rcvrTelNo2)
+//                .rcvrTelNo3(rcvrTelNo3)
+//                .rcvrZipNo(rcvrZipNo)
+//                .rcvrAddr(rcvrAddr)
+//                .rcvrDetailAddr(rcvrdetailAddr)
+//                .oriInvcNo(ORI_INVC_NO)
+//                .gdsNm(gdsNm)
+//                .gdsQty(gdsQty).build();
+
+        cjMapper.send(cjDto2);
+        System.out.println("test");
+
+    }
     @PostMapping("/receiving")
     private ResponseEntity<ResultData> receiving(@RequestHeader("Authorization") String token, @RequestBody List<String> hwbNoList) {
         try {

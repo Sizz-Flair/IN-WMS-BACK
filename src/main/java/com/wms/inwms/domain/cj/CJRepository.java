@@ -2,7 +2,6 @@ package com.wms.inwms.domain.cj;
 
 
 import com.wms.inwms.domain.base.BaseRepo;
-import com.wms.inwms.domain.cj.CJDto;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 

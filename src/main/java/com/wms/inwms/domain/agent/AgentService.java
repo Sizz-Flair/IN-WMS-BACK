@@ -19,6 +19,5 @@ public class AgentService extends BaseService<Agent, Long> {
     @PostConstruct
     private void setAgentInfo() {
         this.agentInfo = this.repository.findAll();
-        System.out.println(agentInfo);
     }
 }

@@ -8,6 +8,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public interface FileService<T> {
-    List<Map<String, String>> readFile(MultipartFile file) throws IOException, CustomException;
+public interface FileService {
+    <T>List<T> readFile(MultipartFile file, Class<T> classType) throws IOException, CustomException;
 }

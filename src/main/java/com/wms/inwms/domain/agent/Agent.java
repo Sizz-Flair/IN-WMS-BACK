@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Table(name="agent")
 public class Agent extends BaseModel<Long> {
 
     @Id

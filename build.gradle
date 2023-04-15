@@ -38,6 +38,9 @@ dependencies {
     implementation 'com.github.javadev:underscore:1.84'
     //
 
+    //oracle
+    implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: '19.3.0.0'
+
     // Querydsl
     implementation group: 'com.querydsl', name: 'querydsl-jpa', version: querydslVersion
     implementation group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
