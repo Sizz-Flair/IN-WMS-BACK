@@ -39,4 +39,9 @@ public class ReturnOrderController {
         List<Return> resultDataList = returnService.saveAll(returnDataList);
         return ResponseEntity.ok().body(responseData.ResultListData(resultDataList, "SUCCESS"));
     }
+
+    @PostMapping(path="/test2")
+    public void test() {
+        System.out.println(returnService.findAll());
+    }
 }

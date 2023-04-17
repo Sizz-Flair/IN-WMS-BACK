@@ -13,12 +13,10 @@ import java.util.List;
 public class ReturnService extends BaseService<Return, Long> {
 
     private final ReturnRepository returnRepository;
-    private final ObjectMapper objectMapper;
 
-    public ReturnService(ReturnRepository returnRepository, ObjectMapper objectMapper) {
+    public ReturnService(ReturnRepository returnRepository) {
         super(returnRepository);
         this.returnRepository = returnRepository;
-        this.objectMapper = objectMapper;
     }
 
     public List<Return> findAll() {
@@ -26,25 +24,23 @@ public class ReturnService extends BaseService<Return, Long> {
     }
 
     @Transactional
-    public List<Return> saveAll(List<Return> returnDataList) throws SQLIntegrityConstraintViolationException{
+    public List<Return> saveAll(List<Return> returnDataList) {
         try {
             this.returnRepository.saveAll(returnDataList);
-        } catch(SQLIntegrityConstraintViolationException e) {
+        } catch(Exception e) {
             e.printStackTrace();
         } finally {
 
         }
-
-
         return this.returnRepository.saveAll(returnDataList);
     }
 
-    public void saveReturnOrderData(List<ReturnOrderDto> returnOrderList) {
-        try{
-            List<Return> returnDataList = objectMapper.convertValue(returnOrderList, ArrayList.class);
-            this.returnRepository.saveAll(returnDataList);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public void saveReturnOrderData(List<ReturnOrderDto> returnOrderList) {
+//        try{
+//            List<Return> returnDataList = objectMapper.convertValue(returnOrderList, ArrayList.class);
+//            this.returnRepository.saveAll(returnDataList);
+//        } catch(Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

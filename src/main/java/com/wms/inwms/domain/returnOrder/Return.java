@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Entity
@@ -43,6 +44,7 @@ public class Return extends BaseModel<Long> {
     private BigDecimal price;
 
     @Column(name="weight")
+    @NotNull(message = "{name.notnull}")
     private BigDecimal weight;
 
     @Column(name="item_num")
