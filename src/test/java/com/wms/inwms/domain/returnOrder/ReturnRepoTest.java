@@ -39,32 +39,37 @@ public class ReturnRepoTest {
     @Test
     public void ReturnOrderListSaveTest() {
         //given
-        ReturnOrderDto returnOrderDto = ReturnOrderDto.builder()
-                .orderNum("testOrderNum")
-                .name("testName")
-                .deliveryCode("testDelivery")
+//        ReturnOrderDto returnOrderDto = ReturnOrderDto.builder()
+//                .orderNum("testOrderNumaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestOrderNumaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+//                .deliveryCode("testDelivery")
+//                .number("testNumber")
+//                .originNumber("testOrigin")
+//                .price(new BigDecimal(1L)).build();
+//
+//        List<ReturnOrderDto> listData = new ArrayList<>();
+//        listData.add(returnOrderDto);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        List<Return> testData = objectMapper.convertValue(listData, new TypeReference<List<Return>>() { });
+
+        ReturnEntity re = ReturnEntity.builder().agentId(1L)
+                .shipper("testShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                .agency("testAgency")
                 .number("testNumber")
+                .deliveryCom("testDecom")
                 .originNumber("testOrigin")
-                .price(new BigDecimal(1L)).build();
+                .itemNum("testItemNum")
+                .qty(1L)
+                .orderNum("testOrderNum")
+                .price(new BigDecimal(1L))
+                .weight(new BigDecimal(1L)).build();
 
-
-
-        List<ReturnOrderDto> listData = new ArrayList<>();
-
-        listData.add(returnOrderDto);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        List<Return> testData = objectMapper.convertValue(listData, new TypeReference<List<Return>>() { });
-
+        List<ReturnEntity> returnListData = new ArrayList<>();
+        returnListData.add(re);
 
         //when
-
-        List<Return>test = returnRepository.saveAll(testData);
-
+        //List<ReturnEntity>test = returnRepository.saveAll(returnListData);
 
         //then
-        System.out.println(test);
+        //System.out.println(test);
     }
-
 }

@@ -1,6 +1,6 @@
 package com.wms.inwms.domain.base;
 
-import com.wms.inwms.domain.returnOrder.QReturn;
+import com.wms.inwms.domain.returnOrder.QReturnEntity;
 
 import java.io.Serializable;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 public class BaseService<T, ID extends Serializable> extends WmsBaseService<T, ID> {
 
     protected BaseRepo<T, ID> repository;
-    protected QReturn qReturn = QReturn.return$;
+    protected QReturnEntity qReturn = QReturnEntity.return$;
 
     public List<T> findAll() {
         return this.repository.findAll();

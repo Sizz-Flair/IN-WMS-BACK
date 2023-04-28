@@ -31,20 +31,20 @@ public class WebApplicationConfig implements WebMvcConfigurer {
         };
     }
 
-//    @Bean
-//    public MessageSource validationMessageSource() {
-//        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-//        messageSource.setBasename("classpath:/validation");
-//        messageSource.setDefaultEncoding("UTF-8");
-//        System.out.println(System.getProperty("java.class.path"));
-//        System.out.println("classpath:/resource/validation");
-//        return messageSource;
-//    }
-//
-//    @Override
-//    public Validator getValidator() {
-//        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-//        bean.setValidationMessageSource(validationMessageSource());
-//        return bean;
-//    }
+    @Bean
+    public MessageSource messageSource() {
+        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setBasename("classpath:/messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        messageSource.setCacheSeconds(3);
+
+        return messageSource;
+    }
+
+    @Override
+    public Validator getValidator() {
+        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+        bean.setValidationMessageSource(messageSource());
+        return bean;
+    }
 }

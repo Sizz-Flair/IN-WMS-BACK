@@ -3,6 +3,7 @@ package com.wms.inwms.util.exceptionUtil;
 import com.wms.inwms.domain.response.ResponseData;
 import com.wms.inwms.domain.response.ResultData;
 import com.wms.inwms.util.customException.CustomException;
+import com.wms.inwms.util.customException.CustomRunException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     protected ResponseEntity<ResultData> handleIllegalArgumentException(NoSuchElementException e) {
-        //final ErrorResponse errorResponse = ErrorResponse.builder().code("Item Not Found").message(e.getMessage()).build();
-
-//        return ResponseEntity.status(100).body(() -> "test");
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData("FAIL"));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     };
 
     @ExceptionHandler(CustomException.class)
@@ -56,5 +53,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<ResultData> handleConstraintViolationException(ConstraintViolationException e) {
         return null;
+    }
+
+    @ExceptionHandler(CustomRunException.class)
+    protected ResponseEntity<ResultData> handleCustomRunException(CustomRunException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ResultData> handleException(Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     }
 }

@@ -67,8 +67,6 @@ public class ReceiveController {
         String gdsNm = "슈퍼컴퓨터";
         Long gdsQty = 1L;
 
-
-
         CJDto2 cjDto2 = CJDto2.builder()
                 .custUseNo("TESTORDER-4") // 송장과 1:1 매칭
                 .oriOrdNo("TESTORDER-ORI-4")
@@ -99,7 +97,7 @@ public class ReceiveController {
 //                .gdsNm(gdsNm)
 //                .gdsQty(gdsQty).build();
 
-        cjMapper.send(cjDto2);
+        //cjMapper.send(cjDto2);
         System.out.println("test");
 
     }
