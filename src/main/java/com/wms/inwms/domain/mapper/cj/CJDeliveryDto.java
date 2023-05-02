@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CJDto2 {
+public class CJDeliveryDto {
     @Builder.Default
     @Column(name = "CUST_ID") // 업체ID
     private String custId = "30327633"; //"30327633";

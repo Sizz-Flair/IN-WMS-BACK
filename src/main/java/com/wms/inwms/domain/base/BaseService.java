@@ -8,7 +8,7 @@ import java.util.List;
 public class BaseService<T, ID extends Serializable> extends WmsBaseService<T, ID> {
 
     protected BaseRepo<T, ID> repository;
-    protected QReturnEntity qReturn = QReturnEntity.return$;
+    protected QReturnEntity qReturn = QReturnEntity.returnEntity;
 
     public List<T> findAll() {
         return this.repository.findAll();

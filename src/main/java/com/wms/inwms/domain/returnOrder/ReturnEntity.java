@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
 @Table(name = "return_order")
 public class ReturnEntity extends BaseModel<Long> {
 
@@ -53,6 +52,9 @@ public class ReturnEntity extends BaseModel<Long> {
 
     @Column(name = "agent_id")
     private Long agentId;
+
+    @Column(name = "report_status")
+    private String reportStatus;
 
     @Override
     public Long getId() {

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 //@ActiveProfiles("application.properties")
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ExtendWith(MockitoExtension.class)
+//@ExtendWith(MockitoExtension.class)
 public class ReturnServiceTest {
 
     //static int a;
@@ -39,9 +39,25 @@ public class ReturnServiceTest {
     ReturnService returnService;
 //
     @Test
-    public void test(int i) {
-        System.out.println("test");
-        System.out.println(returnService.findAll());
+    public void test() {
+
+        String telNum = "01040243740";
+        String[] detailTelNum = new String[3];
+        final int CELL_NUM_LENGTH = 11;
+        final int TEL_NUM_LENGTH = 9;
+        int[] separator = telNum.length() == CELL_NUM_LENGTH ? new int[]{3, 7} : new int[]{2, 5};
+        int idx = 0;
+
+        for (int i = 0; i < separator.length; i++) {
+            detailTelNum[i] = telNum.substring(idx, separator[i]);
+            idx = separator[i];
+        }
+        detailTelNum[separator.length] = telNum.substring(idx);
+
+        System.out.println(detailTelNum[0]);
+        System.out.println(detailTelNum[1]);
+        System.out.println(detailTelNum[2]);
+
     }
 
     class Myr implements  Runnable {

@@ -1,7 +1,7 @@
 package com.wms.inwms.controller;
 
 import com.wms.inwms.domain.agent.AgentService;
-import com.wms.inwms.domain.mapper.cj.CJDto2;
+import com.wms.inwms.domain.mapper.cj.CJDeliveryDto;
 import com.wms.inwms.domain.mapper.cj.CjMapper;
 import com.wms.inwms.domain.receive.Receive;
 import com.wms.inwms.domain.receive.ReceiveDto;
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,7 +66,7 @@ public class ReceiveController {
         String gdsNm = "슈퍼컴퓨터";
         Long gdsQty = 1L;
 
-        CJDto2 cjDto2 = CJDto2.builder()
+        CJDeliveryDto cjDto2 = CJDeliveryDto.builder()
                 .custUseNo("TESTORDER-4") // 송장과 1:1 매칭
                 .oriOrdNo("TESTORDER-ORI-4")
                 .mpckKey(mpckey + ORI_INVC_NO)

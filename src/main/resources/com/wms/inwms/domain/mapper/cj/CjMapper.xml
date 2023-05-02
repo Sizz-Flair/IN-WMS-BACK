@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wms.inwms.domain.mapper.cj.CjMapper">
-    <insert id="send" parameterType="com.wms.inwms.domain.mapper.cj.CJDto2">
+    <insert id="send" parameterType="com.wms.inwms.domain.mapper.cj.CJDeliveryDto">
         INSERT INTO V_RCPT_GIANTNET010(
             CUST_ID,
             RCPT_YMD,

@@ -99,7 +99,7 @@ public class ReturnOrderController {
 
     /**
      * ==============================================
-     * <p>
+     * <p> CJ 반품 프로세스(반품신고)
      * ==============================================
      * user : akfur
      * date : 2023-04-20
@@ -108,7 +108,7 @@ public class ReturnOrderController {
      */
     @PostMapping(path = "/return/report/cj")
     public ResponseEntity<ResultDataList> reportCJ(@RequestBody List<@Valid ReturnOrderDto> returnOrderDtoList) {
-        //returnService.shippingReportCJ(returnOrderDtoList);
+        returnService.shippingReportCJ(returnOrderDtoList);
         return null;
     }
 }
