@@ -11,6 +11,7 @@ import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.customException.CustomRunException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,60 +88,38 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      *
      * @return List<ReturnEntity>
      */
+    @javax.transaction.Transactional
     public List<ReturnEntity> shippingReportCJ(List<ReturnOrderDto> returnOrderDtoList) {
-        List<CJDeliveryDto> deliveryCJData = new ArrayList<>();
         try {
-            deliveryCJData = createCJDeliveryList(returnOrderDtoList);
+            List<CJDeliveryDto> deliveryCJData = createCJDeliveryList(returnOrderDtoList);
 
             /* CJDB는 뷰테이블만 제공하여 단일건으로 신고만 가능 일괄 신고 불가능 */
-            saveReturnCJDeli(deliveryCJData);
+            List<String> successData = saveReturnCJDeli(deliveryCJData);
+            updateDeliveryStatus(successData);
 
-            iter
-        } catch (IndexOutOfBoundsException e) {
-            log.error("indexOutOfBound Error", e.getMessage(), e);
+            return null;
+        } catch (DuplicateKeyException e) {
+            log.error("DuplicateKeyException Error", e.getMessage(), e);
             throw new CustomRunException("");
-        } finally {
-
         }
-//        List<CJDto2> cjDto2List = new ArrayList<>();
-//        LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
-//
-//        String mpckey = LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd")) + "_30244464" + "567213753691";
-//        String rcvrNm = "김현진";
-//        String rcvrTelNo1 = "010";
-//        String rcvrTelNo2 = "4024";
-//        String rcvrTelNo3 = "3740";
-//        String rcvrZipNo = "21400";
-//        String rcvrAddr = "인천광역시 부평구 안남로 15번길 24";
-//        String rcvrdetailAddr = "중앙하이츠 102동 1601호";
-//        String ORI_INVC_NO = "567213753691";
-//        String gdsNm = "슈퍼컴퓨터";
-//        Long gdsQty = 1L;
-//
-//        CJDto2 cjDto2 = CJDto2.builder()
-//                .custUseNo("TESTORDER-7") // 송장과 1:1 매칭
-//                .oriOrdNo("TESTORDER-ORI-4")
-//                .mpckKey(mpckey + ORI_INVC_NO)
-//                .sendrNm(rcvrNm)
-//                .sendrTelNo1(rcvrTelNo1)
-//                .sendrTelNo2(rcvrTelNo2)
-//                .sendrTelNo3(rcvrTelNo3)
-//                .sendrZipNo(rcvrZipNo)
-//                .sendrAddr(rcvrAddr)
-//                .sendrDetailAddr(rcvrdetailAddr)
-//                .gdsNm(gdsNm)
-//                .gdsQty(gdsQty)
-//                .remark1("remark").prtSt("02")
-//                .build();
-
-        //cjMapper.send(cjDto2);
-        return null;
     }
 
-    private void saveReturnCJDeli(List<CJDeliveryDto> deliveryCJData) {
-        for (CJDeliveryDto deliveryCJDatum : deliveryCJData) {
-            cjMapper.send(deliveryCJDatum);
+    public void updateDeliveryStatus(List<String> successData) {
+        if(!successData.isEmpty()) {
+            this.update(qReturn)
+                    .set(qReturn.reportStatus, "Y")
+                    .where(qReturn.originNumber.in(successData))
+                    .execute();
         }
+    }
+
+    private List<String> saveReturnCJDeli(List<CJDeliveryDto> deliveryCJData) {
+        List<String> successOriginNum = new ArrayList<>();
+        for (CJDeliveryDto deliveryCJDatum : deliveryCJData) {
+            if(cjMapper.send(deliveryCJDatum) > 0);
+                successOriginNum.add(deliveryCJDatum.getOriInvcNo());
+        }
+        return successOriginNum;
     }
 
 
@@ -147,9 +128,12 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
 
         for (ReturnOrderDto returnOrderDto : returnOrderDtoList) {
             String[] telNum = detailTelNum(returnOrderDto);
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
 
             CJDeliveryDto cjDeliveryDto =
                     CJDeliveryDto.builder()
+                    .custUseNo("TESTORDER8").oriOrdNo("testorder8")
+                    .mpckKey(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))+"_30244464"+returnOrderDto.getOriginNumber())
                     .sendrNm(returnOrderDto.getName())
                     .sendrTelNo1(telNum[0])
                     .sendrTelNo2(telNum[1])
@@ -157,6 +141,8 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
                     .sendrZipNo(returnOrderDto.getZipNo())
                     .sendrAddr(returnOrderDto.getAddr())
                     .sendrDetailAddr(returnOrderDto.getAddr())
+                    .gdsNm(returnOrderDto.getGoodsName())
+                    .gdsQty(returnOrderDto.getQty())
                     .oriInvcNo(returnOrderDto.getOriginNumber()).build();
 
             cjDeliveryDtoList.add(cjDeliveryDto);

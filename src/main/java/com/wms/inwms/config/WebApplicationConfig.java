@@ -30,7 +30,6 @@ public class WebApplicationConfig implements WebMvcConfigurer {
                     "/notFound"));
         };
     }
-
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();

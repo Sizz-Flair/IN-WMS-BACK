@@ -5,6 +5,8 @@ import com.wms.inwms.domain.response.ResultData;
 import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.customException.CustomRunException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -20,6 +22,7 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
+@Slf4j
 public class GlobalExceptionHandler {
     private final ResponseData responseData;
 
@@ -62,7 +65,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ResultData> handleException(Exception e) {
-        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
+    }
+
+    @ExceptionHandler(IndexOutOfBoundsException.class)
+    protected ResponseEntity<ResultData> handleIndexOutOfBoundsException(IndexOutOfBoundsException e) {
+        log.error("IndexOutOfBoundsException", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     }
 }

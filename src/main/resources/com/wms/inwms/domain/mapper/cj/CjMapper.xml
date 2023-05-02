@@ -87,7 +87,7 @@
             #{modiDtime},
             #{remark1},
             #{oriInvcNo, jdbcType=VARCHAR},
-            #{oriOrdNo}
+            #{oriOrdNo, jdbcType=VARCHAR}
         )
     </insert>
 </mapper>
