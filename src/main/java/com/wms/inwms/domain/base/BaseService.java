@@ -14,7 +14,6 @@ public class BaseService<T, ID extends Serializable> extends WmsBaseService<T, I
         return this.repository.findAll();
     }
 
-
     public BaseService(BaseRepo<T, ID> repository) {
         super(repository);
         this.repository = repository;

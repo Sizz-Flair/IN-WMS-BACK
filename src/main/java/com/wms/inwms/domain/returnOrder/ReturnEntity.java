@@ -56,6 +56,10 @@ public class ReturnEntity extends BaseModel<Long> {
     @Column(name = "report_status")
     private String reportStatus;
 
+    public void setReportStatus(String reportStatus) {
+        this.reportStatus = reportStatus;
+    }
+
     @Override
     public Long getId() {
         return id;

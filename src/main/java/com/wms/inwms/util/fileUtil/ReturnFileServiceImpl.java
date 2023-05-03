@@ -24,7 +24,6 @@ public class ReturnFileServiceImpl implements FileService {
     private final ObjectMapper objectMapper;
     private final MessageUtil messageUtil;
 
-
     public <T> List<T> readFile(MultipartFile file, Class<T> classType) {
         try {
             fileUtil.fileTypeCheck(file.getOriginalFilename());
@@ -35,6 +34,8 @@ public class ReturnFileServiceImpl implements FileService {
             dataCheck.orElseThrow(() -> new CustomException(""));
 
             List<T> resultDataList = convert(dataCheck.get());
+
+            Boolean.valueOf(true);
 
             return resultDataList;
         } catch (CustomException e) {
@@ -51,7 +52,6 @@ public class ReturnFileServiceImpl implements FileService {
             throw new CustomRunException(messageUtil.getMessage("ExcelDataNull"));
         }
     }
-
 
     /**
      * ==============================================
@@ -141,7 +141,6 @@ public class ReturnFileServiceImpl implements FileService {
         }
         return firstRowMap;
     }
-
 
 
     private Map<Integer, String> titleStringValues(Iterator<Row> rowIterator) {

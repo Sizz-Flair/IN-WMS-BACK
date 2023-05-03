@@ -2,6 +2,7 @@ package com.wms.inwms.domain.returnOrder;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.wms.inwms._test.FactoryTest;
 import com.wms.inwms.domain.base.BaseService;
 import com.wms.inwms.domain.mapper.cj.CJDeliveryDto;
 import com.wms.inwms.domain.mapper.cj.CjMapper;
@@ -25,6 +26,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -87,30 +90,31 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      * date : 2023-04-29
      *
      * @return List<ReturnEntity>
+     *
+     * 전달받은 매개변수로 CJ 반품 데이터 리스트 생성 후 반품 신고, 신고완료 후 반품 신고상태(report_status) Y로 변경
+     * CJDB는 뷰테이블만 제공하여 단일건으로만 insert가능
      */
-    @javax.transaction.Transactional
+    //@Transactional 마이바티스 jpa 에러시 동시 트랜잭션처리되는지 확인
     public List<ReturnEntity> shippingReportCJ(List<ReturnOrderDto> returnOrderDtoList) {
         try {
+
+            FactoryTest.getInstance();
             List<CJDeliveryDto> deliveryCJData = createCJDeliveryList(returnOrderDtoList);
 
             /* CJDB는 뷰테이블만 제공하여 단일건으로 신고만 가능 일괄 신고 불가능 */
             List<String> successData = saveReturnCJDeli(deliveryCJData);
-            updateDeliveryStatus(successData);
 
-            return null;
+            return saveAll(reportSuccessDataFind(successData));
         } catch (DuplicateKeyException e) {
+            /* 추후 유니크 관련 중복 에러처리 작성 */
             log.error("DuplicateKeyException Error", e.getMessage(), e);
             throw new CustomRunException("");
         }
     }
 
-    public void updateDeliveryStatus(List<String> successData) {
-        if(!successData.isEmpty()) {
-            this.update(qReturn)
-                    .set(qReturn.reportStatus, "Y")
-                    .where(qReturn.originNumber.in(successData))
-                    .execute();
-        }
+    private List<ReturnEntity> reportSuccessDataFind(List<String> successData) {
+        return select().from(qReturn).where(qReturn.originNumber.in(successData)).fetch()
+                .stream().peek(e -> e.setReportStatus("Y")).collect(Collectors.toList());
     }
 
     private List<String> saveReturnCJDeli(List<CJDeliveryDto> deliveryCJData) {
