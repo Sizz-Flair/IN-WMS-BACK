@@ -31,7 +31,7 @@ public class ReadyInit implements ApplicationRunner {
             JasperReportsContext jrc = new SimpleJasperReportsContext();
             String basePath = Prop.getProp("jasper.input.label");
 
-            Jasper.reportMap.put("CJ", (JasperReport) JRLoader.loadObject(jrc, new FileInputStream("D:\\\\dev\\\\ggate_spring\\\\src\\\\main\\\\resources\\\\jasper\\\\" + "CJ.jasper")));
+            //Jasper.reportMap.put("CJ", (JasperReport) JRLoader.loadObject(jrc, new FileInputStream("D:\\\\dev\\\\ggate_spring\\\\src\\\\main\\\\resources\\\\jasper\\\\" + "CJ.jasper")));
             Jasper.reportMap.entrySet().stream().forEach(e -> {
                 System.out.println("├ Jasper ->" + e.getKey());
             });

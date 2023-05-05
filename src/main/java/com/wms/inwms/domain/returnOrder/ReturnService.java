@@ -2,14 +2,14 @@ package com.wms.inwms.domain.returnOrder;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.wms.inwms._test.FactoryTest;
 import com.wms.inwms.domain.base.BaseService;
 import com.wms.inwms.domain.mapper.cj.CJDeliveryDto;
 import com.wms.inwms.domain.mapper.cj.CjMapper;
 import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
+import com.wms.inwms.domain.returnOrder.dto.ReturnResponseDto;
 import com.wms.inwms.domain.returnOrder.dto.ReturnSearchDto;
-import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.customException.CustomRunException;
+import com.wms.inwms.util.mapper.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DuplicateKeyException;
@@ -26,7 +26,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,26 +59,40 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
     public Page<ReturnEntity> find() {
         Pageable pageable = PageRequest.of(10, 10);
 
-        JPAQueryFactory qq = new JPAQueryFactory(em);
+        JPAQueryFactory query = new JPAQueryFactory(em);
         List<ReturnEntity> returnData = this.select().from(qReturn)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize()).fetch();
-        JPAQuery<Long> count = qq.select(qReturn.count()).from(qReturn);
+        JPAQuery<Long> count = query.select(qReturn.count()).from(qReturn);
 
         return PageableExecutionUtils.getPage(returnData, pageable, count::fetchOne);
     }
 
+    /**
+     * ==============================================
+     * <p> 일자 범위로 반품정보 검색
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-03
+     *
+     * @param pageable
+     * @param returnSearchDto
+     * @return Page<ReturnResponseDto>
+     *
+     * 페이징 리스트로 반환하며 ReturnEntity -> ReturnResponseDto 변환
+     */
     @Transactional
-    public Page<ReturnEntity> searchReturnData(Pageable pageable, @NotNull ReturnSearchDto returnSearchDto) {
+    public Page<ReturnResponseDto> searchReturnData(Pageable pageable, @NotNull ReturnSearchDto returnSearchDto) {
         Instant startDate = returnSearchDto.getStartDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
         Instant endDate = returnSearchDto.getEndDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 
-        return returnRepository.findByCreatedBetweenAndOrderNumContaining(
+        Page<ReturnEntity> page = returnRepository.findByCreatedBetweenAndOrderNumContaining(
                 startDate,
                 endDate,
                 returnSearchDto.getOrderNum(),
                 pageable
         );
+        return page.map(order -> Mapper.mapper(order, ReturnResponseDto.class));
     }
 
     /**
@@ -90,15 +103,12 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      * date : 2023-04-29
      *
      * @return List<ReturnEntity>
-     *
+     * <p>
      * 전달받은 매개변수로 CJ 반품 데이터 리스트 생성 후 반품 신고, 신고완료 후 반품 신고상태(report_status) Y로 변경
      * CJDB는 뷰테이블만 제공하여 단일건으로만 insert가능
      */
-    //@Transactional 마이바티스 jpa 에러시 동시 트랜잭션처리되는지 확인
     public List<ReturnEntity> shippingReportCJ(List<ReturnOrderDto> returnOrderDtoList) {
         try {
-
-            FactoryTest.getInstance();
             List<CJDeliveryDto> deliveryCJData = createCJDeliveryList(returnOrderDtoList);
 
             /* CJDB는 뷰테이블만 제공하여 단일건으로 신고만 가능 일괄 신고 불가능 */
@@ -112,21 +122,56 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
         }
     }
 
+    /**
+     * ==============================================
+     * <p> CJ 반품신고 플래그 값 변경
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-03
+     *
+     * @param successData
+     * @return List<ReturnEntity>
+     *
+     * 성공한 송장번호 조회 후 반품오더 report_status를 Y(반품신고 성공) 변경
+     */
     private List<ReturnEntity> reportSuccessDataFind(List<String> successData) {
         return select().from(qReturn).where(qReturn.originNumber.in(successData)).fetch()
                 .stream().peek(e -> e.setReportStatus("Y")).collect(Collectors.toList());
     }
 
+    /**
+     * ==============================================
+     * <p> CJ반품 신고
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-03
+     *
+     * @param deliveryCJData
+     * @return List<String>
+     *
+     * 반품신고 후 DB저장된 송장번호 리스트 반환
+     */
     private List<String> saveReturnCJDeli(List<CJDeliveryDto> deliveryCJData) {
         List<String> successOriginNum = new ArrayList<>();
         for (CJDeliveryDto deliveryCJDatum : deliveryCJData) {
-            if(cjMapper.send(deliveryCJDatum) > 0);
-                successOriginNum.add(deliveryCJDatum.getOriInvcNo());
+            if (cjMapper.send(deliveryCJDatum) > 0) ;
+            successOriginNum.add(deliveryCJDatum.getOriInvcNo());
         }
         return successOriginNum;
     }
 
-
+    /**
+     * ==============================================
+     * <p> CJ반품 데이터 생성
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-03
+     *
+     * @param returnOrderDtoList
+     * @return List<CJDeliveryDto>
+     *
+     * CJ반품 데이터 생성 후 List반환(데이터는 빌드로 생성)
+     */
     private List<CJDeliveryDto> createCJDeliveryList(List<ReturnOrderDto> returnOrderDtoList) {
         List<CJDeliveryDto> cjDeliveryDtoList = new ArrayList<>();
 
@@ -136,24 +181,36 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
 
             CJDeliveryDto cjDeliveryDto =
                     CJDeliveryDto.builder()
-                    .custUseNo("TESTORDER8").oriOrdNo("testorder8")
-                    .mpckKey(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))+"_30244464"+returnOrderDto.getOriginNumber())
-                    .sendrNm(returnOrderDto.getName())
-                    .sendrTelNo1(telNum[0])
-                    .sendrTelNo2(telNum[1])
-                    .sendrTelNo3(telNum[2])
-                    .sendrZipNo(returnOrderDto.getZipNo())
-                    .sendrAddr(returnOrderDto.getAddr())
-                    .sendrDetailAddr(returnOrderDto.getAddr())
-                    .gdsNm(returnOrderDto.getGoodsName())
-                    .gdsQty(returnOrderDto.getQty())
-                    .oriInvcNo(returnOrderDto.getOriginNumber()).build();
+                            .custUseNo("TESTORDER8").oriOrdNo("testorder8")
+                            .mpckKey(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd")) + "_30244464" + returnOrderDto.getOriginNumber())
+                            .sendrNm(returnOrderDto.getName())
+                            .sendrTelNo1(telNum[0])
+                            .sendrTelNo2(telNum[1])
+                            .sendrTelNo3(telNum[2])
+                            .sendrZipNo(returnOrderDto.getZipNo())
+                            .sendrAddr(returnOrderDto.getAddr())
+                            .sendrDetailAddr(returnOrderDto.getAddr())
+                            .gdsNm(returnOrderDto.getGoodsName())
+                            .gdsQty(returnOrderDto.getQty())
+                            .oriInvcNo(returnOrderDto.getOriginNumber()).build();
 
             cjDeliveryDtoList.add(cjDeliveryDto);
         }
         return cjDeliveryDtoList;
     }
 
+    /**
+     * ==============================================
+     * <p> CJ반품 송하인, 수취인 번호 분리
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-03
+     *
+     * @param returnOrderDto
+     * @return String[]
+     *
+     * 송하인 또는 수취인 번호를 3개로 나눈다, 11자리(핸드펀번호) 9자리(일반번호) 외에는 미처리
+     */
     private String[] detailTelNum(ReturnOrderDto returnOrderDto) {
         String[] detailTelNum = new String[3];
         String telNum = returnOrderDto.getTelNum().replace("-", "");

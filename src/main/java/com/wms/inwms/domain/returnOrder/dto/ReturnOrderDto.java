@@ -2,7 +2,6 @@ package com.wms.inwms.domain.returnOrder.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 

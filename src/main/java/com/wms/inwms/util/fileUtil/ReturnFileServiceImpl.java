@@ -1,6 +1,7 @@
 package com.wms.inwms.util.fileUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wms.inwms.domain.returnOrder.excelMap.ReturnExMap;
 import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.customException.CustomException;
 import com.wms.inwms.util.customException.CustomRunException;
@@ -24,18 +25,30 @@ public class ReturnFileServiceImpl implements FileService {
     private final ObjectMapper objectMapper;
     private final MessageUtil messageUtil;
 
-    public <T> List<T> readFile(MultipartFile file, Class<T> classType) {
+    /**
+     * ==============================================
+     * <p> excel 데이터 조회후 반환
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-04
+     *
+     * @param file
+     * @param exType
+     * @return List<T>
+     *
+     * exType조회 후 그 타입에 맞는 Map데이터를 반환 후 데이터 체크
+     */
+    public <T> List<T> readFile(MultipartFile file, String exType) {
         try {
             fileUtil.fileTypeCheck(file.getOriginalFilename());
+            Map<String, String> excelData = selectExcelType(exType);
 
             Iterator<Row> rowIterator = getRowData(file);
 
-            Optional<List<Map<String, String>>> dataCheck = Optional.of(checkDataValidation(rowIterator));
+            Optional<List<Map<String, String>>> dataCheck = Optional.of(checkDataValidation(rowIterator, excelData));
             dataCheck.orElseThrow(() -> new CustomException(""));
 
             List<T> resultDataList = convert(dataCheck.get());
-
-            Boolean.valueOf(true);
 
             return resultDataList;
         } catch (CustomException e) {
@@ -55,7 +68,29 @@ public class ReturnFileServiceImpl implements FileService {
 
     /**
      * ==============================================
-     * <p>
+     * <p> exType에 맞는 Map을 반환
+     * ==============================================
+     * user : akfur
+     * date : 2023-05-04
+     *
+     * @param exType
+     * @return Map<String, String>
+     *
+     * 정적 메소드 방식으로 Map작성, Map.of immutable처리
+     */
+    private Map<String, String> selectExcelType(String exType) {
+        Map<String, String> excelSelect = null;
+        switch (exType) {
+            case "ReturnOrder": excelSelect = ReturnExMap.getReturnOrderEx();
+        }
+        Optional<Map<String, String>> optMap = Optional.ofNullable(excelSelect);
+        optMap.orElseThrow(() -> new CustomRunException("{ExcelTypeMiss}"));
+        return excelSelect;
+    }
+
+    /**
+     * ==============================================
+     * <p> Excel 행 데이터 가져오기
      * ==============================================
      * user : akfur
      * date : 2023-04-20
@@ -63,6 +98,8 @@ public class ReturnFileServiceImpl implements FileService {
      * @param file
      * @return Iterator<Row>
      * @throws IOException
+     *
+     * Iterator<Row> 받아오며 Sheet는 무조건 0에서 받아옴 (추후 주가 시트 진행은 확인 후 진행)
      */
     private Iterator<Row> getRowData(MultipartFile file) throws IOException {
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
@@ -71,32 +108,31 @@ public class ReturnFileServiceImpl implements FileService {
         return rowIterator;
     }
 
-
-    private List<Map<String, String>> checkDataValidation(Iterator<Row> rowIterator) {
+    protected <T extends Map<String, String>> List<Map<String, String>> checkDataValidation(Iterator<Row> rowIterator, T exMap) {
         List<Map<String, String>> resultListData = new ArrayList<>();
         Map<Integer, String> titleStringValues = titleStringValues(rowIterator);
-
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
             Iterator<Cell> cellIterator = row.cellIterator();
             Map<String, String> resultData = new HashMap<>();
+
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
                 switch (cell.getCellType()) {
                     case BLANK:
-                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "{DataEmpty}", resultData);
+                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "{DataEmpty}", resultData, exMap);
                         break;
                     case _NONE:
-                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "{DataEmpty}", resultData);
+                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "{DataEmpty}", resultData, exMap);
                         break;
                     case NUMERIC:
-                        dataCheck(titleStringValues.get(cell.getColumnIndex()), String.valueOf(cell.getNumericCellValue()), resultData);
+                        dataCheck(titleStringValues.get(cell.getColumnIndex()), String.valueOf(cell.getNumericCellValue()), resultData, exMap);
                         break;
                     case ERROR:
-                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "{DataEmpty}", resultData);
+                        dataCheck(titleStringValues.get(cell.getStringCellValue()), "{DataEmpty}", resultData, exMap);
                         break;
                     default:
-                        dataCheck(titleStringValues.get(cell.getColumnIndex()), cell.getStringCellValue(), resultData);
+                        dataCheck(titleStringValues.get(cell.getColumnIndex()), cell.getStringCellValue(), resultData, exMap);
                 }
             }
             resultListData.add(resultData);
@@ -104,17 +140,12 @@ public class ReturnFileServiceImpl implements FileService {
         return resultListData;
     }
 
-    public void dataCheck(String columnName, String data, Map map) {
-        if (DataDto.ReturnTitleEnum.NO.getValue().equals(columnName)) map.put("No", data);
-        if (DataDto.ReturnTitleEnum.NUMBER.getValue().equals(columnName)) map.put("number", data);
-        if (DataDto.ReturnTitleEnum.ORIGIN_NUMBER.getValue().equals(columnName)) map.put("originNumber", data);
-        if (DataDto.ReturnTitleEnum.DELIVERY_CODE.getValue().equals(columnName)) map.put("deliveryCode", data);
-        if (DataDto.ReturnTitleEnum.UPPER_LOCATION.getValue().equals(columnName)) map.put("upperLocation", data);
-        if (DataDto.ReturnTitleEnum.LOWER_LOCATION.getValue().equals(columnName)) map.put("lowerLocation", data);
-        if (DataDto.ReturnTitleEnum.AGENT_NAME.getValue().equals(columnName)) map.put("agentName", data);
-        if (DataDto.ReturnTitleEnum.RETURN_DATE_TIME.getValue().equals(columnName)) map.put("returnDateTime", data);
-        if (DataDto.ReturnTitleEnum.AIR_OCEAN_TYPE.getValue().equals(columnName)) map.put("ariOceanType", data);
-        if (DataDto.ReturnTitleEnum.ETC_MEMO.getValue().equals(columnName)) map.put("etcMemo", data);
+    public void dataCheck(String columnName, String data, Map map, Map<String, String> mapEx) {
+        mapEx.forEach((k, v) -> {
+            if(v.equals(columnName)) {
+                map.put(k,data);
+            }
+        });
     }
 
     private List<Map<String, String>> putValues(Iterator<Row> rowIterator) {

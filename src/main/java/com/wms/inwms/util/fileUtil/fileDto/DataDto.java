@@ -1,11 +1,9 @@
 package com.wms.inwms.util.fileUtil.fileDto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 public class DataDto {
+
     public enum ReturnTitleEnum{
         NO("No"),
         NUMBER("반품 송장"),
@@ -27,11 +25,27 @@ public class DataDto {
         public String getValue() {
             return value;
         }
+    }
 
-        public String gets() {
-            return this.name();
+    public enum ReturnOrderTitleEnum{
+        No("No"),
+        DATE_ARRIVAL("입항일자"),
+        ORDER_ACCOUNT("오더거래처"),
+        AGENCY("대리점"),
+        DELIVERY_COM("택배사"),
+        NUMBER("송장번호"),
+        ORIGIN_NUMBER("원송장번호"),
+        QTY("수량"),
+        WEIGHT("중랑"),
+        PRICE("물품가액"),
+        GOODS_NAME("품명"),
+        SENDER("보내는사람");
+
+        private final String value;
+        ReturnOrderTitleEnum(String value) {this.value = value;}
+        public String getValue() {
+            return value;
         }
-
     }
 
     public enum ReturnEnum{

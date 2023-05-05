@@ -7,6 +7,9 @@ import com.wms.inwms.domain.response.ResultPageData;
 import com.wms.inwms.domain.returnOrder.ReturnEntity;
 import com.wms.inwms.domain.returnOrder.ReturnService;
 import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderExDto;
+import com.wms.inwms.domain.returnOrder.excelMap.ReturnExMap;
+import com.wms.inwms.domain.returnOrder.dto.ReturnResponseDto;
 import com.wms.inwms.domain.returnOrder.dto.ReturnSearchDto;
 import com.wms.inwms.util.fileUtil.ReturnFileServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,9 +43,9 @@ public class ReturnOrderController {
      * @param file
      * @return ResponseEntity<ResultDataList>
      */
-    @PostMapping(path = "/return")
-    public ResponseEntity<ResultDataList> returnDataCheck(@RequestParam MultipartFile file) {
-        List<ReturnEntity> resultData = returnFileService.readFile(file, ReturnEntity.class);
+    @PostMapping(path = "/excel/return")
+    public ResponseEntity<ResultDataList> returnDataCheck(@RequestParam MultipartFile file, @RequestParam String exType) {
+        List<ReturnEntity> resultData = returnFileService.readFile(file,exType);
         return ResponseEntity.ok().body(responseData.ResultListData(resultData, ResponseMessage.SUCCESS.name()));
     }
 
@@ -58,7 +62,7 @@ public class ReturnOrderController {
     @PostMapping(path = "/return/save")
     public ResponseEntity<ResultDataList> returnDataSave(@RequestBody List<@Valid ReturnEntity> returnDataList) {
         List<ReturnEntity> resultDataList = returnService.saveAll(returnDataList);
-        return ResponseEntity.ok().body(responseData.ResultListData(resultDataList, "SUCCESS"));
+        return ResponseEntity.ok().body(responseData.ResultListData(resultDataList, ResponseMessage.SUCCESS.name()));
     }
 
     /**
@@ -90,7 +94,7 @@ public class ReturnOrderController {
      */
     @GetMapping(path = "/return/search")
     public ResponseEntity<ResultPageData> searchReturnData(Pageable pageable, @ModelAttribute ReturnSearchDto searchDto) {
-        Page<ReturnEntity> data = returnService.searchReturnData(pageable, searchDto);
+        Page<ReturnResponseDto> data = returnService.searchReturnData(pageable, searchDto);
         return ResponseEntity.ok().body(responseData.ResultPageData(data, "SUCCESS"));
     }
 
@@ -104,7 +108,7 @@ public class ReturnOrderController {
      * @return ResponseEntity<ResultDataList>
      */
     @PostMapping(path = "/return/report/cj")
-    public ResponseEntity<ResultDataList> reportCJ(@RequestBody List<@Valid ReturnOrderDto> returnOrderDtoList) {
+    public ResponseEntity<ResultDataList> reportCJ(@RequestBody List<@Valid ReturnOrderDto> returnOrderDtoList) throws Exception {
         returnService.shippingReportCJ(returnOrderDtoList);
         return null;
     }

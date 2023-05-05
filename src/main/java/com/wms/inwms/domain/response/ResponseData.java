@@ -25,11 +25,11 @@ public class ResponseData {
         return new ResultData<T>(message);
     }
 
-    public <T extends BaseModel>ResultDataList ResultListData(List<T> listData, String message) {
+    public <T>ResultDataList ResultListData(List<T> listData, String message) {
         return new ResultDataList(listData, message);
     }
 
-    public<T extends  BaseModel>ResultPageData ResultPageData(Page<T> pageData, String message ) {
+    public<T>ResultPageData ResultPageData(Page<T> pageData, String message ) {
         return new ResultPageData(pageData, message);
     }
 

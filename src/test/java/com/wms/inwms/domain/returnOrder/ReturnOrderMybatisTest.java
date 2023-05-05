@@ -35,13 +35,9 @@ public class ReturnOrderMybatisTest {
     public void mybatisTest() {
 
         //given
-        //CJDeliveryDto cjDeliveryDto = CJDeliveryDto.builder().
-
-
 
         //when
         //cjMapper.send(cjDeliveryDto);
-
 
         //then
 
