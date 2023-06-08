@@ -38,16 +38,6 @@ public class ReceiveController {
 
     @PostMapping("/ttt")
     private void ttt() {
-
-//        567213753691
-//        567213754052
-//        567213755334
-//        567213755474
-//        567213755905
-//        567213756421
-//        567213756432
-//        567213756815
-
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("YYYYMMdd");
 

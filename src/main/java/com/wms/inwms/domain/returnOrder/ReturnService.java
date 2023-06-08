@@ -46,9 +46,9 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
     }
 
     @Transactional
-    public List<ReturnEntity> saveAll(List<ReturnEntity> returnDataList) {
+    public <T>List<T> saveAll(List<T> returnDataList) {
         try {
-            return this.returnRepository.saveAll(returnDataList);
+            return null;//this.returnRepository.saveAll(returnDataList);
         } catch (Exception e) {
             log.error("Save Exception", e.getMessage(), e);
             throw e;

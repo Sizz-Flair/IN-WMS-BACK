@@ -1,6 +1,7 @@
 package com.wms.inwms.util.fileUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDtoM;
 import com.wms.inwms.domain.returnOrder.excelMap.ReturnExMap;
 import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.customException.CustomException;
@@ -9,6 +10,7 @@ import com.wms.inwms.util.fileUtil.fileDto.DataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,64 @@ public class ReturnFileServiceImpl implements FileService {
     private final FileUtil fileUtil;
     private final ObjectMapper objectMapper;
     private final MessageUtil messageUtil;
+
+    /**
+     * ==============================================
+     * <p> excel data 검증 후 반환
+     * ==============================================
+     * user : akfur
+     * date : 2023-06-08
+     *
+     * @param file
+     * @param exType
+     * @param <T>
+     * @return List<T>
+     */
+    public <T> List<T> readFile2(MultipartFile file, String exType) {
+        //commoncode가 있다고 가정
+
+        try {
+            fileUtil.fileTypeCheck(file.getOriginalFilename());
+
+            Iterator<Row> rowIterator = getRowIterator(file);
+            return getReturnOrderListExData(rowIterator);
+        } catch (CustomException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private <T>List<T> getReturnOrderListExData(Iterator<Row> rowIterator) {
+        Map<String, Object> excelDataMap = new HashMap<>();
+        List<ReturnOrderDtoM.ReturnExcelDto> resultListData = new ArrayList<>();
+        while(rowIterator.hasNext()) {
+            Iterator<Cell> cellIterator = rowIterator.next().cellIterator();
+            while (cellIterator.hasNext()) {
+                Cell cell = cellIterator.next();
+                switch (cell.getCellType()) {
+                    case NUMERIC: {
+                        String cellData = String.valueOf(cell.getNumericCellValue());
+                        excelDataMap.put(ReturnExMap.ReturnOrderExcel.get(cell.getColumnIndex()).get("column"), Double.parseDouble(cellData)); break;
+                    }
+                    default: excelDataMap.put(ReturnExMap.ReturnOrderExcel.get(cell.getColumnIndex()).get("column"), cell.getStringCellValue()); break;
+                }
+            }
+            ReturnOrderDtoM.ReturnExcelDto getDto = objectMapper.convertValue(excelDataMap, ReturnOrderDtoM.ReturnExcelDto.class);
+            resultListData.add(getDto);
+        }
+    }
+
+    @NotNull
+    private Iterator<Row> getRowIterator(MultipartFile file) throws IOException {
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.iterator();
+        rowIterator.next();
+        return rowIterator;
+    }
 
     /**
      * ==============================================

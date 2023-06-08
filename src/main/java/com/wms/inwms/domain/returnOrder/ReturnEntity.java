@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Entity
 @AllArgsConstructor
@@ -53,6 +54,28 @@ public class ReturnEntity extends BaseModel<Long> {
 
     @Column(name = "report_status")
     private String reportStatus;
+
+    @Column(name = "goodsName")
+    private String goodsName;
+
+    @Column(name = "addr")
+    private String addr;
+
+    @Column(name = "addr_detail")
+    private String addrDetail;
+
+    @Column(name = "tel")
+    private String tel;
+
+    @Column(name = "order_account")
+    private String orderAccount;
+
+    @Column(name = "date_arrival")
+    private Instant dateArrival;
+
+    @Column(name = "zip_no")
+    private String zipNo;
+
 
     public void setReportStatus(String reportStatus) {
         this.reportStatus = reportStatus;

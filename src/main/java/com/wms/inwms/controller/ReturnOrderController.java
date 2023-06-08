@@ -1,16 +1,13 @@
 package com.wms.inwms.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wms.inwms.domain.response.ResponseData;
 import com.wms.inwms.domain.response.ResponseMessage;
 import com.wms.inwms.domain.response.ResultDataList;
 import com.wms.inwms.domain.response.ResultPageData;
 import com.wms.inwms.domain.returnOrder.ReturnEntity;
 import com.wms.inwms.domain.returnOrder.ReturnService;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderExDto;
-import com.wms.inwms.domain.returnOrder.excelMap.ReturnExMap;
-import com.wms.inwms.domain.returnOrder.dto.ReturnResponseDto;
-import com.wms.inwms.domain.returnOrder.dto.ReturnSearchDto;
+import com.wms.inwms.domain.returnOrder.dto.*;
 import com.wms.inwms.util.fileUtil.ReturnFileServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +42,7 @@ public class ReturnOrderController {
      */
     @PostMapping(path = "/excel/return")
     public ResponseEntity<ResultDataList> returnDataCheck(@RequestParam MultipartFile file, @RequestParam String exType) {
-        List<ReturnEntity> resultData = returnFileService.readFile(file,exType);
+        List<ReturnOrderDtoM.ReturnExcelDto> resultData = returnFileService.readFile2(file,exType);
         return ResponseEntity.ok().body(responseData.ResultListData(resultData, ResponseMessage.SUCCESS.name()));
     }
 
@@ -60,8 +57,10 @@ public class ReturnOrderController {
      * @return ResponseEntity<ResultDataList>
      */
     @PostMapping(path = "/return/save")
-    public ResponseEntity<ResultDataList> returnDataSave(@RequestBody List<@Valid ReturnEntity> returnDataList) {
-        List<ReturnEntity> resultDataList = returnService.saveAll(returnDataList);
+    public ResponseEntity<ResultDataList> returnDataSave(@RequestBody List<@Valid ReturnOrderSaveDto> returnDataList) {
+        ObjectMapper ob = new ObjectMapper();
+        List<ReturnEntity> r = returnDataList.stream().map( e -> ob.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
+        List<ReturnOrderSaveDto> resultDataList = returnService.saveAll(returnDataList);
         return ResponseEntity.ok().body(responseData.ResultListData(resultDataList, ResponseMessage.SUCCESS.name()));
     }
 
