@@ -1,11 +1,13 @@
 package com.wms.inwms.domain.returnOrder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wms.inwms.domain.base.BaseService;
 import com.wms.inwms.domain.mapper.cj.CJDeliveryDto;
 import com.wms.inwms.domain.mapper.cj.CjMapper;
 import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderSaveDto;
 import com.wms.inwms.domain.returnOrder.dto.ReturnResponseDto;
 import com.wms.inwms.domain.returnOrder.dto.ReturnSearchDto;
 import com.wms.inwms.util.customException.CustomRunException;
@@ -33,12 +35,14 @@ import java.util.stream.Collectors;
 public class ReturnService extends BaseService<ReturnEntity, Long> {
 
     private final ReturnRepository returnRepository;
+    private final ObjectMapper mapper
     private final CjMapper cjMapper;
 
-    public ReturnService(ReturnRepository returnRepository, CjMapper cjMapper) {
+    public ReturnService(ReturnRepository returnRepository, CjMapper cjMapper, ObjectMapper mapper) {
         super(returnRepository);
         this.returnRepository = returnRepository;
         this.cjMapper = cjMapper;
+        this.mapper = mapper;
     }
 
     public List<ReturnEntity> findAll() {
@@ -46,9 +50,10 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
     }
 
     @Transactional
-    public <T>List<T> saveAll(List<T> returnDataList) {
+    public List<ReturnOrderSaveDto> saveAll(List<ReturnOrderSaveDto> returnDataList) {
         try {
-            return null;//this.returnRepository.saveAll(returnDataList);
+            List<ReturnEntity> returnEntities = returnDataList.stream().map(e -> mapper.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
+            return this.returnRepository.saveAll(returnEntities);
         } catch (Exception e) {
             log.error("Save Exception", e.getMessage(), e);
             throw e;

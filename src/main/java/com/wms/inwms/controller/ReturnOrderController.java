@@ -8,7 +8,7 @@ import com.wms.inwms.domain.response.ResultPageData;
 import com.wms.inwms.domain.returnOrder.ReturnEntity;
 import com.wms.inwms.domain.returnOrder.ReturnService;
 import com.wms.inwms.domain.returnOrder.dto.*;
-import com.wms.inwms.util.fileUtil.ReturnFileServiceImpl;
+import com.wms.inwms.util.fileUtil.FileCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 @Validated
 public class ReturnOrderController {
 
-    private final ReturnFileServiceImpl returnFileService;
+    //private final ReturnFileServiceImpl returnFileService;
+    private final FileCommonServiceImpl fileCommonService;
     private final ReturnService returnService;
     private final ResponseData responseData;
 
@@ -42,7 +43,7 @@ public class ReturnOrderController {
      */
     @PostMapping(path = "/excel/return")
     public ResponseEntity<ResultDataList> returnDataCheck(@RequestParam MultipartFile file, @RequestParam String exType) {
-        List<ReturnOrderDtoM.ReturnExcelDto> resultData = returnFileService.readFile2(file,exType);
+        List<ReturnOrderDtoM.ReturnExcelDto> resultData = fileCommonService.readFile(file, exType);
         return ResponseEntity.ok().body(responseData.ResultListData(resultData, ResponseMessage.SUCCESS.name()));
     }
 
@@ -58,8 +59,8 @@ public class ReturnOrderController {
      */
     @PostMapping(path = "/return/save")
     public ResponseEntity<ResultDataList> returnDataSave(@RequestBody List<@Valid ReturnOrderSaveDto> returnDataList) {
-        ObjectMapper ob = new ObjectMapper();
-        List<ReturnEntity> r = returnDataList.stream().map( e -> ob.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
+        //ObjectMapper ob = new ObjectMapper();
+        //List<ReturnEntity> r = returnDataList.stream().map(e -> ob.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
         List<ReturnOrderSaveDto> resultDataList = returnService.saveAll(returnDataList);
         return ResponseEntity.ok().body(responseData.ResultListData(resultDataList, ResponseMessage.SUCCESS.name()));
     }
@@ -111,4 +112,5 @@ public class ReturnOrderController {
         returnService.shippingReportCJ(returnOrderDtoList);
         return null;
     }
+
 }

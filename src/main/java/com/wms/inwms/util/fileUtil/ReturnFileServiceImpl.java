@@ -1,7 +1,9 @@
+/*
 package com.wms.inwms.util.fileUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDtoM;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderExDto;
 import com.wms.inwms.domain.returnOrder.excelMap.ReturnExMap;
 import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.customException.CustomException;
@@ -27,7 +29,8 @@ public class ReturnFileServiceImpl implements FileService {
     private final ObjectMapper objectMapper;
     private final MessageUtil messageUtil;
 
-    /**
+    */
+/**
      * ==============================================
      * <p> excel data 검증 후 반환
      * ==============================================
@@ -38,15 +41,17 @@ public class ReturnFileServiceImpl implements FileService {
      * @param exType
      * @param <T>
      * @return List<T>
-     */
-    public <T> List<T> readFile2(MultipartFile file, String exType) {
-        //commoncode가 있다고 가정
+     *//*
 
+    public <T>List<T> readFile2(MultipartFile file, String exType) {
         try {
-            fileUtil.fileTypeCheck(file.getOriginalFilename());
+            //aop로 처리하기
+            if(file.getSize() >= 100000) throw new CustomRunException(messageUtil.getMessage("ExcelFileSizeMax"));
 
+            fileUtil.fileTypeCheck(file.getOriginalFilename());
             Iterator<Row> rowIterator = getRowIterator(file);
-            return getReturnOrderListExData(rowIterator);
+
+            return objectMapper.convertValue(getReturnOrderListExData(rowIterator), ArrayList.class);
         } catch (CustomException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -56,10 +61,10 @@ public class ReturnFileServiceImpl implements FileService {
         }
     }
 
-    private <T>List<T> getReturnOrderListExData(Iterator<Row> rowIterator) {
-        Map<String, Object> excelDataMap = new HashMap<>();
-        List<ReturnOrderDtoM.ReturnExcelDto> resultListData = new ArrayList<>();
+    private List<Map<String, Object>> getReturnOrderListExData(Iterator<Row> rowIterator) {
+        List<Map<String, Object>> resultData = new ArrayList<>();
         while(rowIterator.hasNext()) {
+            Map<String, Object> excelDataMap = new HashMap<>();
             Iterator<Cell> cellIterator = rowIterator.next().cellIterator();
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
@@ -71,9 +76,9 @@ public class ReturnFileServiceImpl implements FileService {
                     default: excelDataMap.put(ReturnExMap.ReturnOrderExcel.get(cell.getColumnIndex()).get("column"), cell.getStringCellValue()); break;
                 }
             }
-            ReturnOrderDtoM.ReturnExcelDto getDto = objectMapper.convertValue(excelDataMap, ReturnOrderDtoM.ReturnExcelDto.class);
-            resultListData.add(getDto);
+            resultData.add(excelDataMap);
         }
+        return resultData;
     }
 
     @NotNull
@@ -85,7 +90,8 @@ public class ReturnFileServiceImpl implements FileService {
         return rowIterator;
     }
 
-    /**
+    */
+/**
      * ==============================================
      * <p> excel 데이터 조회후 반환
      * ==============================================
@@ -97,7 +103,8 @@ public class ReturnFileServiceImpl implements FileService {
      * @return List<T>
      *
      * exType조회 후 그 타입에 맞는 Map데이터를 반환 후 데이터 체크
-     */
+     *//*
+
     public <T> List<T> readFile(MultipartFile file, String exType) {
         try {
             fileUtil.fileTypeCheck(file.getOriginalFilename());
@@ -126,7 +133,9 @@ public class ReturnFileServiceImpl implements FileService {
         }
     }
 
-    /**
+
+    */
+/**
      * ==============================================
      * <p> exType에 맞는 Map을 반환
      * ==============================================
@@ -137,7 +146,8 @@ public class ReturnFileServiceImpl implements FileService {
      * @return Map<String, String>
      *
      * 정적 메소드 방식으로 Map작성, Map.of immutable처리
-     */
+     *//*
+
     private Map<String, String> selectExcelType(String exType) {
         Map<String, String> excelSelect = null;
         switch (exType) {
@@ -148,7 +158,8 @@ public class ReturnFileServiceImpl implements FileService {
         return excelSelect;
     }
 
-    /**
+    */
+/**
      * ==============================================
      * <p> Excel 행 데이터 가져오기
      * ==============================================
@@ -160,7 +171,8 @@ public class ReturnFileServiceImpl implements FileService {
      * @throws IOException
      *
      * Iterator<Row> 받아오며 Sheet는 무조건 0에서 받아옴 (추후 주가 시트 진행은 확인 후 진행)
-     */
+     *//*
+
     private Iterator<Row> getRowData(MultipartFile file) throws IOException {
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
@@ -252,3 +264,4 @@ public class ReturnFileServiceImpl implements FileService {
         return resultData;
     }
 }
+*/
