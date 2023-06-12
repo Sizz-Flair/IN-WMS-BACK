@@ -89,6 +89,7 @@ public class ReceiveController {
         //cjMapper.send(cjDto2);
         System.out.println("test");
 
+
     }
     @PostMapping("/receiving")
     private ResponseEntity<ResultData> receiving(@RequestHeader("Authorization") String token, @RequestBody List<String> hwbNoList) {

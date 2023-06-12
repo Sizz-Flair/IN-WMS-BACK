@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 @Repository
-public interface
-ReturnRepository extends BaseRepo<ReturnEntity, Long> {
+public interface ReturnRepository extends BaseRepo<ReturnEntity, Long> {
     Page<ReturnEntity> findByCreatedBetweenAndOrderNumContaining(Instant startDate, Instant endDate, String name, Pageable pageable);
 }

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class ReturnService extends BaseService<ReturnEntity, Long> {
 
     private final ReturnRepository returnRepository;
-    private final ObjectMapper mapper
+    private final ObjectMapper mapper;
     private final CjMapper cjMapper;
 
     public ReturnService(ReturnRepository returnRepository, CjMapper cjMapper, ObjectMapper mapper) {
@@ -53,7 +53,8 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
     public List<ReturnOrderSaveDto> saveAll(List<ReturnOrderSaveDto> returnDataList) {
         try {
             List<ReturnEntity> returnEntities = returnDataList.stream().map(e -> mapper.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
-            return this.returnRepository.saveAll(returnEntities);
+            //return this.returnRepository.saveAll(returnEntities);
+            return null;
         } catch (Exception e) {
             log.error("Save Exception", e.getMessage(), e);
             throw e;
@@ -118,8 +119,8 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
 
             /* CJDB는 뷰테이블만 제공하여 단일건으로 신고만 가능 일괄 신고 불가능 */
             List<String> successData = saveReturnCJDeli(deliveryCJData);
-
-            return saveAll(reportSuccessDataFind(successData));
+            return null;
+            //return saveAll(reportSuccessDataFind(successData));
         } catch (DuplicateKeyException e) {
             /* 추후 유니크 관련 중복 에러처리 작성 */
             log.error("DuplicateKeyException Error", e.getMessage(), e);
