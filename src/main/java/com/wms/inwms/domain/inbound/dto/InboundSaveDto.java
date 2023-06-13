@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 /**
  * packageName    : com.wms.inwms.domain.inbound.dto
  * fileName       : InboundSaveDto
@@ -16,6 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InboundSaveDto {
+    private String inboundDate;
     private String number;
     private String state;
     private String upperLocation;
