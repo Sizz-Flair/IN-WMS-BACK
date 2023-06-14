@@ -73,4 +73,16 @@ public class GlobalExceptionHandler {
         log.error("IndexOutOfBoundsException", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     }
+
+    @ExceptionHandler(NullPointerException.class)
+    protected ResponseEntity<ResultData> handleNullPointException(NullPointerException e) {
+        log.error("NullPointerException",e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    protected ResponseEntity<ResultData> handleDuplicateKeyException(DuplicateKeyException e) {
+        log.error("DuplicateKeyException",e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
+    }
 }

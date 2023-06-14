@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAUpdateClause;
 import com.wms.inwms.domain.base.BaseRepo;
 import com.wms.inwms.domain.base.WmsFilterService;
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,11 @@ public abstract class WmsBaseService<T, ID extends Serializable> extends WmsFilt
     @Transactional
     public <S extends T> S save(S object) {
         return this.repository.save(object);
+    }
+
+    @Transactional
+    public <S extends T> List<S> saveAll(Iterable<S> iterable) {
+        return repository.saveAll(iterable);
     }
 
     @Transactional

@@ -1,11 +1,12 @@
 package com.wms.inwms.domain.inbound.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.wms.inwms.domain.inbound.InboundEntity;
+import com.wms.inwms.domain.location.lowerlocation.LowerLocation;
+import com.wms.inwms.domain.location.upperlocation.UpperLocation;
+import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * packageName    : com.wms.inwms.domain.inbound.dto
@@ -17,12 +18,22 @@ import java.time.Instant;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class InboundSaveDto {
     private String inboundDate;
     private String number;
     private String state;
-    private String upperLocation;
-    private String lowerLocation;
-    private String createdAt;
-    private String createdBy;
+    private UpperLocation upperLocation;
+    private LowerLocation lowerLocation;
+    private String MappingNUm;
+//    private String createdAt;
+//    private String createdBy;
+
+    public InboundEntity convertEntity() {
+        return InboundEntity.builder()
+                .number(this.number)
+                .state(this.state)
+                .upperLocation(this.upperLocation)
+                .lowerLocation(this.lowerLocation).build();
+    }
 }
