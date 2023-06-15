@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -39,10 +40,14 @@ public class InboundController {
     }
 
     @GetMapping(path="/search/mapping")
+    private ResponseEntity<ResultDataList> findMappingHwb(@RequestParam Instant startDate, @RequestParam Instant endDate) {
+        List<InboundResultDto.InboundMappingResultDto> resultData = inboundService.findByMappingToDate(startDate, endDate);
+        return ResponseEntity.ok().body(responseData.ResultListData(resultData, ResponseMessage.SUCCESS.name()));
+    }
 
-
-    @PostMapping(path = "/test22")
-    private void test() {
-        inboundService.test();
+    @GetMapping(path = "/select/mappig")
+    private ResponseEntity<ResultDataList> selectMapping(@RequestParam String mappingNum) {
+        List<InboundResultDto.InboundSelectResultDto> resultData = inboundService.getSelectInboundData(mappingNum);
+        return ResponseEntity.ok().body(responseData.ResultListData(resultData, ResponseMessage.SUCCESS.name()));
     }
 }

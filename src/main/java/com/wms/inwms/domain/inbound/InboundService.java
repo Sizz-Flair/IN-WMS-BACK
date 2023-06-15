@@ -1,26 +1,27 @@
 package com.wms.inwms.domain.inbound;
 
-import com.querydsl.core.QueryFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.wms.inwms.domain.base.BaseRepo;
 import com.wms.inwms.domain.base.BaseService;
 import com.wms.inwms.domain.inbound.dto.InboundResultDto;
 import com.wms.inwms.domain.inbound.dto.InboundSaveDto;
 import com.wms.inwms.domain.location.lowerlocation.LowerLocation;
+import com.wms.inwms.domain.location.lowerlocation.LowerLocationService;
 import com.wms.inwms.domain.location.upperlocation.UpperLocation;
+import com.wms.inwms.domain.location.upperlocation.UpperLocationService;
 import com.wms.inwms.util.customException.CustomRunException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
-import javax.swing.undo.CannotUndoException;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -34,34 +35,34 @@ public class InboundService extends BaseService<InboundEntity, Long> {
 
     private final InboundRepository repository;
     private final JPAQueryFactory queryFactory;
+    private final UpperLocationService upperLocationService;
+    private final LowerLocationService lowerLocationService;
 
-    public InboundService(InboundRepository repository, EntityManager entityManager) {
+    public InboundService(InboundRepository repository,
+                          EntityManager entityManager,
+                          UpperLocationService upperLocationService,
+                          LowerLocationService lowerLocationService
+    ) {
         super(repository);
         this.repository = repository;
         this.queryFactory = new JPAQueryFactory(entityManager);
+        this.upperLocationService = upperLocationService;
+        this.lowerLocationService = lowerLocationService;
     }
 
-    public void test() {
-        InboundEntity inbound = this.select().from(qInbound).where(qInbound.id.eq(1L)).fetchOne();
-        System.out.println();
-    }
-
-    public List<InboundResultDto.InboundSaveResultDto> saveInboundMapping(List<InboundSaveDto> saveDto, String up, String low) throws CustomRunException{
+    public List<InboundResultDto.InboundSaveResultDto> saveInboundMapping(List<InboundSaveDto> saveDto, String up, String low) {
         try{
             if (up.isEmpty() || low.isEmpty()) throw new CustomRunException("상위 또는 하위 로케이션을 지정하지 않았습니다.");
 
             /*캐시 서버로 변경 예정*/
-//            UpperLocation upperLocation =
-//            LowerLocation lowerLocation = this.queryFactory.selectFrom(qLowerLocation).where(qLowerLocation.lowLocationName.eq(low)).fetchOne();
-
-
-
+            UpperLocation upperLocation = upperLocationService.findByName(up).orElseThrow(() -> new CustomRunException("상위 로케이션이 없습니다"));
+            LowerLocation lowerLocation = lowerLocationService.findByName(low).orElseThrow(() -> new CustomRunException("하위 로케이션이 없습니다"));
 
             String mappingNum = String.valueOf(UUID.randomUUID()).replace("-", "");
             List<InboundEntity> inboundEntityList = saveDto.stream().map(e -> {
                 e.setLowerLocation(lowerLocation);
-                e.setUpperLocation(upperLocation.get());
-                e.setMappingNUm(mappingNum);
+                e.setUpperLocation(upperLocation);
+                e.setMappingNum(mappingNum);
                 return e.convertEntity();
             }).collect(Collectors.toList());
 
@@ -75,8 +76,41 @@ public class InboundService extends BaseService<InboundEntity, Long> {
             if(sqlException.getErrorCode() == 1062) {
                 throw new DuplicateKeyException("중복 데이터가 있습니다.");
             } else {
-                throw new DataIntegrityViolationException("");
+                throw new DataIntegrityViolationException("무결성 오류 입니다.");
             }
         }
+    }
+
+    public List<InboundResultDto.InboundMappingResultDto> findByMappingToDate(Instant startDate, Instant endDate) {
+        List<Tuple> inboundTuple = getInboundMapping(startDate, endDate).orElseThrow(() -> new CustomRunException("값이 없습니다"));
+        List<InboundResultDto.InboundMappingResultDto> resultList = new ArrayList<>();
+
+        for (Tuple tuple : inboundTuple) {
+            InboundEntity inbound = tuple.get(0, InboundEntity.class);
+            Long amount = tuple.get(1, Long.class);
+            InboundResultDto.InboundMappingResultDto resultData = InboundResultDto.InboundMappingResultDto.builder()
+                    .number(inbound.getNumber()).state(inbound.getState()).upperLocation(inbound.getUpperLocation().getUpLocationName())
+                    .lowerLocation(inbound.getLowerLocation().getLowLocationName()).mappingNum(inbound.getMappingNum()).amount(amount)
+                    .build();
+
+            resultList.add(resultData);
+        }
+        return resultList;
+    }
+
+    private Optional<List<Tuple>> getInboundMapping(Instant startDate, Instant endDate) {
+         List<Tuple> inboundTuple = this.queryFactory.select(qInbound, qInbound.count()).from(qInbound).where(qInbound.created.between(startDate, endDate))
+                .groupBy(qInbound.mappingNum).fetch();
+
+        return Optional.of(inboundTuple);
+    }
+
+    public List<InboundResultDto.InboundSelectResultDto> getSelectInboundData(String mappingNum) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<InboundEntity> inboundEntities = this.repository.findByMappingNum(mappingNum).orElseThrow(() -> new CustomRunException("데이터가 없습니다"));
+        List<InboundResultDto.InboundSelectResultDto> resultDtos =
+                inboundEntities.stream().map(e -> InboundResultDto.InboundSelectResultDto.builder().number(e.getNumber()).state(e.getState()).build()).collect(Collectors.toList());
+
+        return resultDtos;
     }
 }

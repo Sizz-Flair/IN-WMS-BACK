@@ -25,7 +25,7 @@ public class InboundSaveDto {
     private String state;
     private UpperLocation upperLocation;
     private LowerLocation lowerLocation;
-    private String MappingNUm;
+    private String mappingNum;
 //    private String createdAt;
 //    private String createdBy;
 
@@ -33,6 +33,7 @@ public class InboundSaveDto {
         return InboundEntity.builder()
                 .number(this.number)
                 .state(this.state)
+                .mappingNum(this.mappingNum)
                 .upperLocation(this.upperLocation)
                 .lowerLocation(this.lowerLocation).build();
     }
