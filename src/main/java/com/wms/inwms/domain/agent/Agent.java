@@ -24,6 +24,9 @@ public class Agent extends BaseModel<Long> {
     @Column(name="agent_name")
     private String agentName;
 
+    @Column(name = "agent_code")
+    private String agentCode;
+
     @OneToMany(mappedBy = "agent", fetch = FetchType.LAZY)
     private List<User> userList = new ArrayList<>();
 }

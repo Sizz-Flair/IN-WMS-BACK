@@ -41,9 +41,6 @@ public class InboundEntity extends BaseModel<Long> {
     @JoinColumn(name = "lower_location_id")
     private LowerLocation lowerLocation;
 
-    @Column(name="m_inbound_id")
-    private Long mInboundId;
-
     @Column(name="mapping_num")
     private String mappingNum;
 
@@ -52,6 +49,9 @@ public class InboundEntity extends BaseModel<Long> {
 
     @Column(name="inbound_time")
     private Instant inboundTime;
+
+    @Column(name = "agent_code")
+    private String agentCode;
 
     @Override
     public Long getId() {
@@ -64,6 +64,6 @@ public class InboundEntity extends BaseModel<Long> {
                 .state(this.state)
                 .upperLocation(this.upperLocation.getUpLocationName())
                 .lowerLocation(this.lowerLocation.getLowLocationName())
-                .mappingNum(this.mappingNum).build();
+                .mappingNum(this.mappingNum).agentCode(this.agentCode).build();
     }
 }

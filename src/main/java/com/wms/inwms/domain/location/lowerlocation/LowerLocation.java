@@ -32,6 +32,9 @@ public class LowerLocation extends BaseModel<Long> {
     @Column(name = "upper_location_id")
     private Long uppperLocationId;
 
+    @Column(name = "agent_code")
+    private String agentCode;
+
     @Override
     public Long getId() {
         return this.id;

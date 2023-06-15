@@ -10,9 +10,11 @@ import com.wms.inwms.domain.location.lowerlocation.LowerLocation;
 import com.wms.inwms.domain.location.lowerlocation.LowerLocationService;
 import com.wms.inwms.domain.location.upperlocation.UpperLocation;
 import com.wms.inwms.domain.location.upperlocation.UpperLocationService;
+import com.wms.inwms.util.SecurityUserUtil;
 import com.wms.inwms.util.customException.CustomRunException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -59,10 +61,15 @@ public class InboundService extends BaseService<InboundEntity, Long> {
             LowerLocation lowerLocation = lowerLocationService.findByName(low).orElseThrow(() -> new CustomRunException("하위 로케이션이 없습니다"));
 
             String mappingNum = String.valueOf(UUID.randomUUID()).replace("-", "");
+
+            /* 로그인 시 유저 정보에 있는 agent_code를 User(security) 권한 정보에 넣음 */
+            String agentCode = String.valueOf(SecurityUserUtil.getUserDetailInfo().getAuthorities().toArray()[0]);
+
             List<InboundEntity> inboundEntityList = saveDto.stream().map(e -> {
                 e.setLowerLocation(lowerLocation);
                 e.setUpperLocation(upperLocation);
                 e.setMappingNum(mappingNum);
+                e.setAgentCode(agentCode);
                 return e.convertEntity();
             }).collect(Collectors.toList());
 
@@ -90,7 +97,7 @@ public class InboundService extends BaseService<InboundEntity, Long> {
             Long amount = tuple.get(1, Long.class);
             InboundResultDto.InboundMappingResultDto resultData = InboundResultDto.InboundMappingResultDto.builder()
                     .number(inbound.getNumber()).state(inbound.getState()).upperLocation(inbound.getUpperLocation().getUpLocationName())
-                    .lowerLocation(inbound.getLowerLocation().getLowLocationName()).mappingNum(inbound.getMappingNum()).amount(amount)
+                    .lowerLocation(inbound.getLowerLocation().getLowLocationName()).mappingNum(inbound.getMappingNum()).amount(amount).agentCode(inbound.getAgentCode())
                     .build();
 
             resultList.add(resultData);
@@ -106,7 +113,6 @@ public class InboundService extends BaseService<InboundEntity, Long> {
     }
 
     public List<InboundResultDto.InboundSelectResultDto> getSelectInboundData(String mappingNum) {
-        ObjectMapper objectMapper = new ObjectMapper();
         List<InboundEntity> inboundEntities = this.repository.findByMappingNum(mappingNum).orElseThrow(() -> new CustomRunException("데이터가 없습니다"));
         List<InboundResultDto.InboundSelectResultDto> resultDtos =
                 inboundEntities.stream().map(e -> InboundResultDto.InboundSelectResultDto.builder().number(e.getNumber()).state(e.getState()).build()).collect(Collectors.toList());

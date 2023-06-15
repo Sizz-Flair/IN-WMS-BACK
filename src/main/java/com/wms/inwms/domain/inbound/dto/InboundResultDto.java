@@ -17,6 +17,7 @@ public class InboundResultDto {
         private String upperLocation;
         private String lowerLocation;
         private String mappingNum;
+        private String agentCode;
     }
 
     @Builder
@@ -32,6 +33,7 @@ public class InboundResultDto {
         private String mappingNum;
         private Instant created;
         private Long amount;
+        private String agentCode;
     }
 
     @Builder

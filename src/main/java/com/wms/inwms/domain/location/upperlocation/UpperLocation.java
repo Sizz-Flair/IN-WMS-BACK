@@ -30,6 +30,9 @@ public class UpperLocation extends BaseModel<Long> {
     @Column(name = "up_location_type")
     private String upLocationType;
 
+    @Column(name = "agent_code")
+    private String agentCode;
+
     @Override
     public Long getId() {
         return this.id;
