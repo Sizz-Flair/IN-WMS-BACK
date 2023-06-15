@@ -1,6 +1,5 @@
 package com.wms.inwms.domain.inbound;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wms.inwms.domain.base.BaseService;
@@ -10,11 +9,11 @@ import com.wms.inwms.domain.location.lowerlocation.LowerLocation;
 import com.wms.inwms.domain.location.lowerlocation.LowerLocationService;
 import com.wms.inwms.domain.location.upperlocation.UpperLocation;
 import com.wms.inwms.domain.location.upperlocation.UpperLocationService;
+import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.SecurityUserUtil;
 import com.wms.inwms.util.customException.CustomRunException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -52,13 +51,25 @@ public class InboundService extends BaseService<InboundEntity, Long> {
         this.lowerLocationService = lowerLocationService;
     }
 
+    /**
+     * ==============================================
+     * <p> 입고 데이터 저장
+     * ==============================================
+     * user : akfur
+     * date : 2023-06-15
+     *
+     * @param saveDto
+     * @param up
+     * @param low
+     * @return List<InboundResultDto.InboundSaveResultDto>
+     */
     public List<InboundResultDto.InboundSaveResultDto> saveInboundMapping(List<InboundSaveDto> saveDto, String up, String low) {
-        try{
-            if (up.isEmpty() || low.isEmpty()) throw new CustomRunException("상위 또는 하위 로케이션을 지정하지 않았습니다.");
+        try {
+            if (up.isEmpty() || low.isEmpty()) throw new CustomRunException(MessageUtil.message("DeSelectLocation"));
 
             /*캐시 서버로 변경 예정*/
-            UpperLocation upperLocation = upperLocationService.findByName(up).orElseThrow(() -> new CustomRunException("상위 로케이션이 없습니다"));
-            LowerLocation lowerLocation = lowerLocationService.findByName(low).orElseThrow(() -> new CustomRunException("하위 로케이션이 없습니다"));
+            UpperLocation upperLocation = upperLocationService.findByName(up).orElseThrow(() -> new CustomRunException(MessageUtil.message("EmptyUpperLocation")));
+            LowerLocation lowerLocation = lowerLocationService.findByName(low).orElseThrow(() -> new CustomRunException(MessageUtil.message("EmptyLowerLocation")));
 
             String mappingNum = String.valueOf(UUID.randomUUID()).replace("-", "");
 
@@ -80,16 +91,27 @@ public class InboundService extends BaseService<InboundEntity, Long> {
             throw new NullPointerException();
         } catch (DataIntegrityViolationException e) {
             SQLException sqlException = (SQLException) e.getRootCause();
-            if(sqlException.getErrorCode() == 1062) {
-                throw new DuplicateKeyException("중복 데이터가 있습니다.");
+            if (sqlException.getErrorCode() == 1062) {
+                throw new DuplicateKeyException(MessageUtil.message("DuplicateData"));
             } else {
-                throw new DataIntegrityViolationException("무결성 오류 입니다.");
+                throw new DataIntegrityViolationException(MessageUtil.message("IntegrityError"));
             }
         }
     }
 
+    /**
+     * ==============================================
+     * <p> 검색일자로 맵핑된 입고 데이터 조회
+     * ==============================================
+     * user : akfur
+     * date : 2023-06-15
+     *
+     * @param startDate
+     * @param endDate
+     * @return List<InboundResultDto.InboundMappingResultDto>
+     */
     public List<InboundResultDto.InboundMappingResultDto> findByMappingToDate(Instant startDate, Instant endDate) {
-        List<Tuple> inboundTuple = getInboundMapping(startDate, endDate).orElseThrow(() -> new CustomRunException("값이 없습니다"));
+        List<Tuple> inboundTuple = getInboundMapping(startDate, endDate).orElseThrow(() -> new CustomRunException(MessageUtil.message("EmptyValue")));
         List<InboundResultDto.InboundMappingResultDto> resultList = new ArrayList<>();
 
         for (Tuple tuple : inboundTuple) {
@@ -105,15 +127,26 @@ public class InboundService extends BaseService<InboundEntity, Long> {
         return resultList;
     }
 
+    /**
+     * ==============================================
+     * <p>맵핑정보 그룹화하여 조회
+     * ==============================================
+     * user : akfur
+     * date : 2023-06-15
+     *
+     * @param startDate
+     * @param endDate
+     * @return Optional<List<Tuple>>
+     */
     private Optional<List<Tuple>> getInboundMapping(Instant startDate, Instant endDate) {
-         List<Tuple> inboundTuple = this.queryFactory.select(qInbound, qInbound.count()).from(qInbound).where(qInbound.created.between(startDate, endDate))
+        List<Tuple> inboundTuple = this.queryFactory.select(qInbound, qInbound.count()).from(qInbound).where(qInbound.created.between(startDate, endDate))
                 .groupBy(qInbound.mappingNum).fetch();
 
         return Optional.of(inboundTuple);
     }
 
     public List<InboundResultDto.InboundSelectResultDto> getSelectInboundData(String mappingNum) {
-        List<InboundEntity> inboundEntities = this.repository.findByMappingNum(mappingNum).orElseThrow(() -> new CustomRunException("데이터가 없습니다"));
+        List<InboundEntity> inboundEntities = this.repository.findByMappingNum(mappingNum).orElseThrow(() -> new CustomRunException(MessageUtil.message("EmptyValue")));
         List<InboundResultDto.InboundSelectResultDto> resultDtos =
                 inboundEntities.stream().map(e -> InboundResultDto.InboundSelectResultDto.builder().number(e.getNumber()).state(e.getState()).build()).collect(Collectors.toList());
 
