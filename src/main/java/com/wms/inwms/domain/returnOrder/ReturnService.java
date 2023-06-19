@@ -6,22 +6,24 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wms.inwms.domain.base.BaseService;
 import com.wms.inwms.domain.mapper.cj.CJDeliveryDto;
 import com.wms.inwms.domain.mapper.cj.CjMapper;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderSaveDto;
-import com.wms.inwms.domain.returnOrder.dto.ReturnResponseDto;
-import com.wms.inwms.domain.returnOrder.dto.ReturnSearchDto;
+import com.wms.inwms.domain.returnOrder.dto.*;
+import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.customException.CustomRunException;
+import com.wms.inwms.util.fileUtil.FileCommonServiceImpl;
 import com.wms.inwms.util.mapper.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,29 +37,47 @@ import java.util.stream.Collectors;
 public class ReturnService extends BaseService<ReturnEntity, Long> {
 
     private final ReturnRepository returnRepository;
+    private final FileCommonServiceImpl fileCommonService;
     private final ObjectMapper mapper;
     private final CjMapper cjMapper;
 
-    public ReturnService(ReturnRepository returnRepository, CjMapper cjMapper, ObjectMapper mapper) {
+    public ReturnService(ReturnRepository returnRepository, CjMapper cjMapper, ObjectMapper mapper,
+                         FileCommonServiceImpl fileCommonService) {
         super(returnRepository);
         this.returnRepository = returnRepository;
         this.cjMapper = cjMapper;
         this.mapper = mapper;
-    }
-
-    public List<ReturnEntity> findAll() {
-        return this.returnRepository.findAll();
+        this.fileCommonService = fileCommonService;
     }
 
     @Transactional
-    public List<ReturnOrderSaveDto> saveAll(List<ReturnOrderSaveDto> returnDataList) {
+    public Page<ReturnOrderDtoM.ReturnSaveDto>findAll(Pageable pageable) {
+        try{
+            /* findAll에 pageble 입력 시 size만큼만 조회함 totalPage 확인이 어려움 pageImpl에 페이징 정보를 넣어야함*/
+            Page<ReturnEntity> data = this.returnRepository.findAll(pageable);
+
+            List<ReturnOrderDtoM.ReturnSaveDto> dtoList = data.stream().map(e -> e.convertDto()).collect(Collectors.toList());
+            return new PageImpl<ReturnOrderDtoM.ReturnSaveDto>(dtoList, pageable, data.getTotalElements());
+        } catch(Exception e) {
+            throw new RuntimeException("");
+        }
+    }
+
+    @Transactional
+    public void saveAll(List<ReturnOrderSaveDto> returnDataList) {
         try {
             List<ReturnEntity> returnEntities = returnDataList.stream().map(e -> mapper.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
-            //return this.returnRepository.saveAll(returnEntities);
-            return null;
-        } catch (Exception e) {
-            log.error("Save Exception", e.getMessage(), e);
-            throw e;
+            List<ReturnEntity> saveData = this.returnRepository.saveAll(returnEntities);
+
+            if (saveData.size() != returnDataList.size()) {
+                throw new CustomRunException(MessageUtil.message("StrangeValue"));
+            }
+        } catch (DataIntegrityViolationException e) {
+            SQLException sqlException = (SQLException) e.getRootCause();
+            if (sqlException.getErrorCode() == 1062) {
+                throw new DuplicateKeyException(MessageUtil.message("DuplicateData"));
+            }
+            throw new DataIntegrityViolationException(MessageUtil.message("StrangeValue"));
         }
     }
 
@@ -84,7 +104,7 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      * @param pageable
      * @param returnSearchDto
      * @return Page<ReturnResponseDto>
-     *
+     * <p>
      * 페이징 리스트로 반환하며 ReturnEntity -> ReturnResponseDto 변환
      */
     @Transactional
@@ -137,7 +157,7 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      *
      * @param successData
      * @return List<ReturnEntity>
-     *
+     * <p>
      * 성공한 송장번호 조회 후 반품오더 report_status를 Y(반품신고 성공) 변경
      */
     private List<ReturnEntity> reportSuccessDataFind(List<String> successData) {
@@ -154,7 +174,7 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      *
      * @param deliveryCJData
      * @return List<String>
-     *
+     * <p>
      * 반품신고 후 DB저장된 송장번호 리스트 반환
      */
     private List<String> saveReturnCJDeli(List<CJDeliveryDto> deliveryCJData) {
@@ -175,7 +195,7 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      *
      * @param returnOrderDtoList
      * @return List<CJDeliveryDto>
-     *
+     * <p>
      * CJ반품 데이터 생성 후 List반환(데이터는 빌드로 생성)
      */
     private List<CJDeliveryDto> createCJDeliveryList(List<ReturnOrderDto> returnOrderDtoList) {
@@ -214,7 +234,7 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
      *
      * @param returnOrderDto
      * @return String[]
-     *
+     * <p>
      * 송하인 또는 수취인 번호를 3개로 나눈다, 11자리(핸드펀번호) 9자리(일반번호) 외에는 미처리
      */
     private String[] detailTelNum(ReturnOrderDto returnOrderDto) {

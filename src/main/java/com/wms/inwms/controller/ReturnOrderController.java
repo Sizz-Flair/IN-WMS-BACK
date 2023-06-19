@@ -1,6 +1,5 @@
 package com.wms.inwms.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wms.inwms.domain.response.ResponseData;
 import com.wms.inwms.domain.response.ResponseMessage;
 import com.wms.inwms.domain.response.ResultDataList;
@@ -10,16 +9,19 @@ import com.wms.inwms.domain.returnOrder.ReturnService;
 import com.wms.inwms.domain.returnOrder.dto.*;
 import com.wms.inwms.util.fileUtil.FileCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,10 +61,16 @@ public class ReturnOrderController {
      */
     @PostMapping(path = "/return/save")
     public ResponseEntity<ResultDataList> returnDataSave(@RequestBody List<@Valid ReturnOrderSaveDto> returnDataList) {
-        //ObjectMapper ob = new ObjectMapper();
-        //List<ReturnEntity> r = returnDataList.stream().map(e -> ob.convertValue(e, ReturnEntity.class)).collect(Collectors.toList());
-        List<ReturnOrderSaveDto> resultDataList = returnService.saveAll(returnDataList);
-        return ResponseEntity.ok().body(responseData.ResultListData(resultDataList, ResponseMessage.SUCCESS.name()));
+        returnService.saveAll(returnDataList);
+        return ResponseEntity.ok().body(responseData.ResultListData(new ArrayList<>(), ResponseMessage.SUCCESS.name()));
+    }
+
+    @GetMapping(path = "/return/findall")
+    public ResponseEntity<ResultPageData> returnOrderFindAll(
+            @PageableDefault(size=100, sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<ReturnOrderDtoM.ReturnSaveDto> data = returnService.findAll(pageable);
+        return ResponseEntity.ok().body(responseData.ResultPageData(data, ResponseMessage.SUCCESS.name()));
     }
 
     /**

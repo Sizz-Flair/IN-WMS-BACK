@@ -14,8 +14,29 @@ import java.math.BigDecimal;
 public class ReturnOrderDtoM {
 
     @Getter
-    @AllArgsConstructor
+    @Setter
+    @Builder
     public static class ReturnSaveDto {
+        public ReturnSaveDto(String orderNum, String dateArrival, String orderAccount, String agency, String deliveryCom, String number, String originNumber, Integer qty, BigDecimal weight, BigDecimal price, String goodsName, String tel, String addr, String addrDetail, String zipNo, String shipper) {
+            this.orderNum = orderNum;
+            this.dateArrival = dateArrival;
+            this.orderAccount = orderAccount;
+            this.agency = agency;
+            this.deliveryCom = deliveryCom;
+            this.number = number;
+            this.originNumber = originNumber;
+            this.qty = qty;
+            this.weight = weight;
+            this.price = price;
+            this.goodsName = goodsName;
+            this.tel = tel;
+            this.addr = addr;
+            this.addrDetail = addrDetail;
+            this.zipNo = zipNo;
+            this.shipper = shipper;
+        }
+
+        private String orderNum;
         private String dateArrival;
         private String orderAccount;
         private String agency;
