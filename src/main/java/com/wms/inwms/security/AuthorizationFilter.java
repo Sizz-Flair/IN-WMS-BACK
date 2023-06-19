@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -60,10 +62,13 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     }
 
     private void setUserContext(Claims claims, String username) {
-        User userDetails = new User(username, "", Collections.emptyList());
+        List<GrantedAuthority> userData = new ArrayList<>();
+        userData.add(new SimpleGrantedAuthority(String.valueOf(claims.get("agent"))));
+
+        User userDetails = new User(username, "", userData);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, getGrantedAuthorities(claims));
         auth.setDetails(userDetails);
-        SecurityContextHolder.getContext().setAuthentication((Authentication)auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private List<SimpleGrantedAuthority> getGrantedAuthorities(Claims claims) {

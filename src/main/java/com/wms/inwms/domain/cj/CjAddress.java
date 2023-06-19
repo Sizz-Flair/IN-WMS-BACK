@@ -7,10 +7,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.*;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,11 @@ public class CjAddress {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(null, "https://address.doortodoor.co.kr/address/address_webservice.korex");
-            TrustManager[] tm = { (TrustManager)new Object() };
+            TrustManager[] tm = new TrustManager[] { new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers(){return null;}
+                public void checkClientTrusted(X509Certificate[] certs, String authType){}
+                public void checkServerTrusted(X509Certificate[] certs, String authType){}
+            }};
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, tm, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());

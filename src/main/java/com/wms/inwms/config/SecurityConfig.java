@@ -1,5 +1,6 @@
 package com.wms.inwms.config;
 
+import com.wms.inwms.domain.user.UserService;
 import com.wms.inwms.security.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.valves.rewrite.RewriteValve;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import com.wms.inwms.security.JwtAccessDeniedHandler;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,6 +42,8 @@ public class SecurityConfig {
     private final TokenProperties tokenProperties;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
+    private final UserService userService;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,8 +55,8 @@ public class SecurityConfig {
                 .and()
                 .exceptionHandling()// 예외처리 기능 동작
                 //인증 인가 예외 처리 추상을 받아서 하는경우도 있음
-                .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                //.authenticationEntryPoint(jwtAccessDeniedHandler)
+                //.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                .authenticationEntryPoint(jwtAccessDeniedHandler)
                 .and()
                 .logout()
                 .and()
@@ -121,8 +125,7 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(tokenProperties.getLoginPath());
         jwtAuthenticationFilter.setAuthenticationManager(authenticationManager); // 확인필요
-        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(tokenProperties));
+        jwtAuthenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(tokenProperties, userService));
         return jwtAuthenticationFilter;
     }
-
 }

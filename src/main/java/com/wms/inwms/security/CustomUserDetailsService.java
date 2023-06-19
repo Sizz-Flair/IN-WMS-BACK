@@ -24,6 +24,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         return getUserDetails(user.get());
     }
 
+    public User test(String userName) {
+        Optional<User> user = this.userService.findByName(userName);
+        return user.get();
+    }
+
     private org.springframework.security.core.userdetails.User getUserDetails(User u) {
         return new org.springframework.security.core.userdetails.User(
                 u.getUserCredentials().getUsername(),

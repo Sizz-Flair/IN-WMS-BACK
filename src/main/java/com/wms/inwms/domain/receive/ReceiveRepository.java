@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface ReceiveRepository extends BaseRepo<Receive, Long> {
-    Optional<List<Receive>> findByCreatedBetween(Instant startData, Instant edDate);
+    Optional<List<Receive>> findByCreatedBetweenOrderByIdDesc(Instant startData, Instant edDate);
 }

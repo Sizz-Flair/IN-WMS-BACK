@@ -1,7 +1,15 @@
 package com.wms.inwms.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import java.security.Key;
 
 @Component
 @ConfigurationProperties("security.jwt")
@@ -50,9 +58,14 @@ public class TokenProperties {
         return this.expiration;
     }
 
-    private String secret = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    private String secret = Encoders.BASE64.encode(Keys.secretKeyFor(SignatureAlgorithm.HS512).getEncoded());
 
     public String getSecret() {
         return this.secret;
+    }
+
+    public Claims getTokenInfo(String token) {
+        byte[] keyBytes = Decoders.BASE64.decode(this.secret);
+        return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(keyBytes)).build().parseClaimsJws(token.replace("Bearer","")).getBody();
     }
 }
