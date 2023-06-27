@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wms.inwms.domain.mapper.cj.CjMapper">
+
+    <select id="searchTracking" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT * FROM V_TRACE_GIANTNET020 WHERE CUST_USE_NO In
+          <foreach item="number" index="index" collection="array" open="(" separator="," close=")">
+              #{number}
+          </foreach>
+    </select>
     <insert id="send" parameterType="com.wms.inwms.domain.mapper.cj.CJDeliveryDto">
         INSERT INTO V_RCPT_GIANTNET010(
             CUST_ID,

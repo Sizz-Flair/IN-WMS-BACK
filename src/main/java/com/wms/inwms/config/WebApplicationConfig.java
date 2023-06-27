@@ -7,16 +7,29 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @Configuration
 public class WebApplicationConfig implements WebMvcConfigurer {
-    
+
+//    @Override
+//    public void addFormatters(FormatterRegistry registry) {
+////        registry.addConverter(new InstantToLocalDate());
+////        registry.addConverter(new StringToIntagerConverter());
+//    }
+
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new ViewInterceptor());
+//    }
+
     //톰캣 rewrite 알아보기
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -26,10 +39,10 @@ public class WebApplicationConfig implements WebMvcConfigurer {
     @Bean
     public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> containerCustomizer() {
         return container -> {
-            container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND,
-                    "/notFound"));
+            container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/notFound"));
         };
     }
+
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();

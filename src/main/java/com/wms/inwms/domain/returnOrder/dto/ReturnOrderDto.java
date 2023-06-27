@@ -14,12 +14,12 @@ public class ReturnOrderDto {
 
     @NotNull(message="{NotNull}")
     @NotEmpty
-    private String name;
+    private String shipper;
 
     @NotNull(message="{NotNull}")
    //@Min(value=9, message="{min}")
     @NotEmpty
-    private String telNum;
+    private String tel;
 
     @NotNull(message="{NotNull}")
     @NotEmpty

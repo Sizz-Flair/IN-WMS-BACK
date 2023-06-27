@@ -1,37 +1,40 @@
 package com.wms.inwms.controller;
 
+import com.wms.inwms.domain.mapper.cj.CJTrackingDto;
+import com.wms.inwms.domain.mapper.cj.CjMapper;
 import com.wms.inwms.domain.response.ResponseData;
 import com.wms.inwms.domain.response.ResponseMessage;
 import com.wms.inwms.domain.response.ResultDataList;
 import com.wms.inwms.domain.response.ResultPageData;
 import com.wms.inwms.domain.returnOrder.ReturnEntity;
 import com.wms.inwms.domain.returnOrder.ReturnService;
-import com.wms.inwms.domain.returnOrder.dto.*;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDtoM;
+import com.wms.inwms.domain.returnOrder.dto.ReturnOrderSaveDto;
 import com.wms.inwms.util.fileUtil.FileCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
-@Validated
 public class ReturnOrderController {
 
-    //private final ReturnFileServiceImpl returnFileService;
     private final FileCommonServiceImpl fileCommonService;
     private final ReturnService returnService;
     private final ResponseData responseData;
+    private final CjMapper cjMapper;
 
     /**
      * ==============================================
@@ -65,14 +68,6 @@ public class ReturnOrderController {
         return ResponseEntity.ok().body(responseData.ResultListData(new ArrayList<>(), ResponseMessage.SUCCESS.name()));
     }
 
-    @GetMapping(path = "/return/findall")
-    public ResponseEntity<ResultPageData> returnOrderFindAll(
-            @PageableDefault(size=100, sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<ReturnOrderDtoM.ReturnSaveDto> data = returnService.findAll(pageable);
-        return ResponseEntity.ok().body(responseData.ResultPageData(data, ResponseMessage.SUCCESS.name()));
-    }
-
     /**
      * ==============================================
      * <p>
@@ -91,19 +86,18 @@ public class ReturnOrderController {
 
     /**
      * ==============================================
-     * <p>
+     * <p> 서치 데이터로 검색 서치 정보 없을 경우 조건 없이 검색
      * ==============================================
      * user : akfur
-     * date : 2023-04-20
+     * date : 2023-06-20
      *
-     * @param pageable
      * @param searchDto
      * @return ResponseEntity<ResultPageData>
      */
     @GetMapping(path = "/return/search")
-    public ResponseEntity<ResultPageData> searchReturnData(Pageable pageable, @ModelAttribute ReturnSearchDto searchDto) {
-        Page<ReturnResponseDto> data = returnService.searchReturnData(pageable, searchDto);
-        return ResponseEntity.ok().body(responseData.ResultPageData(data, "SUCCESS"));
+    public ResponseEntity<ResultPageData> searchReturnDataPage(@ModelAttribute ReturnOrderDtoM.ReturnOrderSearchDto searchDto) {
+        Page<ReturnOrderDtoM.ReturnSaveDto> data = returnService.searchReturnData(searchDto);
+        return ResponseEntity.ok().body(responseData.ResultPageData(data, ResponseMessage.SUCCESS.name()));
     }
 
     /**
@@ -117,8 +111,23 @@ public class ReturnOrderController {
      */
     @PostMapping(path = "/return/report/cj")
     public ResponseEntity<ResultDataList> reportCJ(@RequestBody List<@Valid ReturnOrderDto> returnOrderDtoList) throws Exception {
-        returnService.shippingReportCJ(returnOrderDtoList);
-        return null;
+        List<ReturnOrderDtoM.ReturnSaveDto> data = returnService.shippingReportCJ(returnOrderDtoList);
+        return ResponseEntity.ok().body(responseData.ResultListData(data, ResponseMessage.SUCCESS.name()));
     }
 
+    /**
+     * ==============================================
+     * <p> CJ 배송조회 - CJDB 이용
+     * ==============================================
+     * user : akfur
+     * date : 2023-06-27
+     *
+     * @param searchData
+     * @return ResponseEntity<ResultDataList>
+     */
+    @PostMapping(path = "/return/search/tracking")
+    public ResponseEntity<ResultDataList> trackingCJ(@RequestBody CJTrackingDto searchData) {
+        List<Map<String, String>> data = returnService.searchCreated(searchData);
+        return ResponseEntity.ok().body(responseData.ResultListData(data, ResponseMessage.SUCCESS.name()));
+    }
 }

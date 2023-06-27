@@ -36,61 +36,6 @@ public class ReceiveController {
     private final AgentService agentService;
     private final CjMapper cjMapper;
 
-    @PostMapping("/ttt")
-    private void ttt() {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("YYYYMMdd");
-
-        //DateTimeFormatter.ofPattern("YYYYMMdd").format(Instant.now(Clock.systemUTC()));
-
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"));
-        String mpckey = LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMdd")) + "_30244464" + "567213753691";
-        String rcvrNm = "김현진";
-        String rcvrTelNo1 = "010";
-        String rcvrTelNo2 = "4024";
-        String rcvrTelNo3 = "3740";
-        String rcvrZipNo = "21400";
-        String rcvrAddr = "인천광역시 부평구 안남로 15번길 24";
-        String rcvrdetailAddr = "중앙하이츠 102동 1601호";
-        String ORI_INVC_NO = "567213753691";
-        String gdsNm = "슈퍼컴퓨터";
-        Long gdsQty = 1L;
-
-        CJDeliveryDto cjDto2 = CJDeliveryDto.builder()
-                .custUseNo("TESTORDER-4") // 송장과 1:1 매칭
-                .oriOrdNo("TESTORDER-ORI-4")
-                .mpckKey(mpckey + ORI_INVC_NO)
-                .sendrNm(rcvrNm)
-                .sendrTelNo1(rcvrTelNo1)
-                .sendrTelNo2(rcvrTelNo2)
-                .sendrTelNo3(rcvrTelNo3)
-                .sendrZipNo(rcvrZipNo)
-                .sendrAddr(rcvrAddr)
-                .sendrDetailAddr(rcvrdetailAddr)
-                .gdsNm(gdsNm)
-                .gdsQty(gdsQty)
-                .remark1("remark").prtSt("02")
-                .build();
-
-//        CJDto2 cjDto2 = CJDto2.builder()
-//                .custUseNo("3870307236412")
-//                .mpckKey(mpckey)
-//                .rcvrNm(rcvrNm)
-//                .rcvrTelNo1(rcvrTelNo1)
-//                .rcvrTelNo2(rcvrTelNo2)
-//                .rcvrTelNo3(rcvrTelNo3)
-//                .rcvrZipNo(rcvrZipNo)
-//                .rcvrAddr(rcvrAddr)
-//                .rcvrDetailAddr(rcvrdetailAddr)
-//                .oriInvcNo(ORI_INVC_NO)
-//                .gdsNm(gdsNm)
-//                .gdsQty(gdsQty).build();
-
-        //cjMapper.send(cjDto2);
-        System.out.println("test");
-
-
-    }
     @PostMapping("/receiving")
     private ResponseEntity<ResultData> receiving(@RequestHeader("Authorization") String token, @RequestBody List<String> hwbNoList) {
         try {
@@ -117,7 +62,6 @@ public class ReceiveController {
 
     @PostMapping("/receiving/search")
     private ResponseEntity<ResultDataList> findSearchReceiveData(@RequestBody ReceiveDto receiveDto) {
-
         String receiveNumber = receiveDto.getReceiveNumber().orElse("");
         Instant startDate = receiveDto.getStartDate().orElse(Instant.EPOCH);
         Instant endDate = receiveDto.getEndDate().orElse(Instant.now());

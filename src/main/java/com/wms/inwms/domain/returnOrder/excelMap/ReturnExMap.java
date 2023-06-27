@@ -20,10 +20,10 @@ public class ReturnExMap {
 
     public static Map<Integer, Map<String, String>> ReturnOrderExcel = Map.ofEntries(
             entry(0,Map.of("column","dateArrival","title","입항일자")),
-            entry(1,Map.of("column","orderAccount","title","오더거래처")),
-            entry(2,Map.of("column","agency","title","대리점")),
-            entry(3,Map.of("column","deliveryCom","title","택배사")),
-            entry(4,Map.of("column","number","title","송장번호")),
+            entry(1,Map.of("column","orderNum","title","오더넘버")),
+            entry(2,Map.of("column","orderAccount","title","오더거래처")),
+            entry(3,Map.of("column","agency","title","대리점")),
+            entry(4,Map.of("column","deliveryCom","title","택배사")),
             entry(5,Map.of("column","originNumber","title","원송장번호")),
             entry(6,Map.of("column","qty","title","수량")),
             entry(7,Map.of("column","weight","title","중량")),

@@ -51,20 +51,20 @@ public class ReturnRepoTest {
 //        ObjectMapper objectMapper = new ObjectMapper();
 //        List<Return> testData = objectMapper.convertValue(listData, new TypeReference<List<Return>>() { });
 
-        ReturnEntity re = ReturnEntity.builder().agentId(1L)
-                .shipper("testShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-                .agency("testAgency")
-                .number("testNumber")
-                .deliveryCom("testDecom")
-                .originNumber("testOrigin")
-                .itemNum("testItemNum")
-                .qty(1L)
-                .orderNum("testOrderNum")
-                .price(new BigDecimal(1L))
-                .weight(new BigDecimal(1L)).build();
-
-        List<ReturnEntity> returnListData = new ArrayList<>();
-        returnListData.add(re);
+//        ReturnEntity re = ReturnEntity.builder().agentId(1L)
+//                .shipper("testShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaatestShipperaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+//                .agency("testAgency")
+//                .number("testNumber")
+//                .deliveryCom("testDecom")
+//                .originNumber("testOrigin")
+//                .itemNum("testItemNum")
+//                .qty(1L)
+//                .orderNum("testOrderNum")
+//                .price(new BigDecimal(1L))
+//                .weight(new BigDecimal(1L)).build();
+//
+//        List<ReturnEntity> returnListData = new ArrayList<>();
+//        returnListData.add(re);
 
         //when
         //List<ReturnEntity>test = returnRepository.saveAll(returnListData);

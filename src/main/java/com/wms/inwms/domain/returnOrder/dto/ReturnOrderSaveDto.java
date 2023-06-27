@@ -2,6 +2,8 @@ package com.wms.inwms.domain.returnOrder.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,6 +18,9 @@ import java.time.LocalDate;
 @Setter
 public class ReturnOrderSaveDto {
     private Instant dateArrival;
+
+    @NotNull(message="{NotNull}")
+    @NotEmpty(message="{NotNull}")
     private String orderNum;
     private String orderAccount;
     private String agency;
@@ -30,13 +35,14 @@ public class ReturnOrderSaveDto {
     private String addrDetail;
     private String zipNo;
     private String shipper;
+    private String goodsName;
 
     public ReturnOrderSaveDto() {}
     @Builder
     public ReturnOrderSaveDto(Instant dateArrival, String orderAccount, String agency, String deliveryCom,
                               String number, String originNumber, Integer qty,
                               BigDecimal weight, BigDecimal price, String tel,
-                              String addr, String addrDetail, String zipNo, String shipper) {
+                              String addr, String addrDetail, String zipNo, String shipper, String goodsName) {
         this.dateArrival = dateArrival;
         this.orderAccount = orderAccount;
         this.agency = agency;
@@ -51,6 +57,7 @@ public class ReturnOrderSaveDto {
         this.addrDetail = addrDetail;
         this.zipNo = zipNo;
         this.shipper = shipper;
+        this.goodsName = goodsName;
     }
 
     public ReturnOrderSaveDto convertDto() {
@@ -68,6 +75,6 @@ public class ReturnOrderSaveDto {
                 .addr(addr)
                 .addrDetail(addrDetail)
                 .zipNo(zipNo)
-                .shipper(shipper).build();
+                .shipper(shipper).goodsName(goodsName).build();
     }
 }

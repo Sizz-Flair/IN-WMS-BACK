@@ -120,7 +120,7 @@ public class ReturnEntity extends BaseModel<Long> {
                 .addr(addr)
                 .addrDetail(addrDetail)
                 .zipNo(zipNo)
-                .shipper(shipper).build();
+                .shipper(shipper).reportStatus(reportStatus).build();
     }
 
     @Override
