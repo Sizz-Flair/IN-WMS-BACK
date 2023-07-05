@@ -2,7 +2,7 @@
 ![header](https://capsule-render.vercel.app/api?type=slice&color=auto&height=100&section=header&text=MINI-WMS&fontSize=40)
 <br>
 # Skill
-<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=flat-square&logo=firebase&logoColor=white"/>
+<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=flat-square&logo=Spring Boot&logoColor=white"/>
 <img src="https://img.shields.io/badge/Firebase-6DB33F?style=flat-square&logo=firebase&logoColor=white"/>
 ### 반품 관리 프로그램 
 - 반품된 상품을 로케이션에 적재 합니다.
