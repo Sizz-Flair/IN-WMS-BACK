@@ -1,5 +1,8 @@
 package com.wms.inwms.config;
 
+import com.wms.inwms.util.SecurityUserUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,17 +14,16 @@ import javax.servlet.http.HttpServletResponse;
  * author         : akfur
  * date           : 2023-06-21
  */
-//public class ViewInterceptor implements HandlerInterceptor {
-//
-////    @Override
-////    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-////        String url = String.valueOf(request.getRequestURI());
-////        if(url.contains("/view")) {
-////            response.setStatus(HttpServletResponse.SC_OK);
-////            response.setContentType("text/html;charset=UTF-8");
-////            response.getWriter().write("/static/index.html");
-////            return false;
-////        }
-////        return true;
-////    }
-//}
+@Slf4j
+public class ViewInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        logSet(request);
+        return true;
+    }
+
+    private void logSet(HttpServletRequest request) {
+        String user = SecurityUserUtil.getUserDetailInfo().getUsername();
+        log.info(user + " - " + request.getRequestURI());
+    }
+}

@@ -8,9 +8,7 @@ import com.wms.inwms.domain.base.BaseService;
 import com.wms.inwms.domain.mapper.cj.CJDeliveryDto;
 import com.wms.inwms.domain.mapper.cj.CJTrackingDto;
 import com.wms.inwms.domain.mapper.cj.CjMapper;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDto;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDtoM;
-import com.wms.inwms.domain.returnOrder.dto.ReturnOrderSaveDto;
+import com.wms.inwms.domain.returnOrder.dto.*;
 import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.customException.CustomRunException;
 import com.wms.inwms.util.fileUtil.FileCommonServiceImpl;
@@ -19,7 +17,6 @@ import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -149,7 +146,6 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
 
         return qReturn.created.between(start, end);
     }
-
 
     /**
      * ==============================================
@@ -326,14 +322,45 @@ public class ReturnService extends BaseService<ReturnEntity, Long> {
         List<String> opNumberList = Optional.ofNullable(searchTracking)
                 .orElseThrow(() -> new CustomRunException(MessageUtil.message("EmptyValue"))).stream().map(e -> e.getNumber()).collect(Collectors.toList());
 
-
-        List<String> numbers = Arrays.asList("127818011","127818012");
+        List<String> numbers = Arrays.asList("127818011", "127818012");
         Map<String, List<String>> data2 = new HashMap<>();
 
-        data2.put("array",numbers);
+        data2.put("array", numbers);
         List<Map<String, String>> data3 = cjMapper.searchTracking(data2);
 
         return data3;
+    }
+
+    public List<ReturnOrderDtoM.ReturnOrderGroupDto> searchOrder() {
+        return this.factory().select(new QReturnOrderDtoM_ReturnOrderGroupDto(qReturn.orderNum, qReturn.agency, qReturn.qty.sum()))
+                .from(qReturn)
+                .where(qReturn.reportStatus.eq("Y"))
+                .groupBy(qReturn.orderNum)
+                .fetch();
+    }
+
+    /**
+     * ==============================================
+     * <p> 피킹지시서 출력 Jasper 데이터 반환
+     * ==============================================
+     * user : akfur
+     * date : 2023-06-29
+     * <p>
+     * # Jasper 데이터는 Map으로 받아서 변환 함
+     *
+     * @param orderNum
+     * @return List<Map>
+     */
+    public List<Map> returnOrderReportData(String orderNum) {
+        return this.factory()
+                .select(new QReturnOrderDtoM_ReturnOrderPickingDto(
+                        qInbound.upperLocation.upLocationName,
+                        qInbound.lowerLocation.lowLocationName,
+                        qReturn.originNumber, qReturn.goodsName))
+                .from(qReturn)
+                .leftJoin(qInbound).on(qReturn.originNumber.eq(qInbound.number))
+                .where(qReturn.orderNum.eq(orderNum).and(qReturn.reportStatus.eq("Y")))
+                .fetch().stream().map(e -> mapper.convertValue(e, Map.class)).collect(Collectors.toList());
     }
 }
 

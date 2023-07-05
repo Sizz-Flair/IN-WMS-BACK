@@ -40,6 +40,11 @@ public abstract class WmsBaseService<T, ID extends Serializable> extends WmsFilt
         return new JPAQuery(this.em);
     }
 
+    @Transactional
+    protected  JPAQueryFactory factory() {
+        return new JPAQueryFactory(this.em);
+    }
+
     protected JPAUpdateClause update(EntityPath<?> entityPath) {
         return new JPAUpdateClause(this.em, entityPath);
     }

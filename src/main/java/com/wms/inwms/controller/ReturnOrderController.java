@@ -13,6 +13,7 @@ import com.wms.inwms.domain.returnOrder.dto.ReturnOrderDtoM;
 import com.wms.inwms.domain.returnOrder.dto.ReturnOrderSaveDto;
 import com.wms.inwms.util.fileUtil.FileCommonServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,7 @@ import java.util.Map;
 @Validated
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ReturnOrderController {
 
     private final FileCommonServiceImpl fileCommonService;
@@ -128,6 +129,12 @@ public class ReturnOrderController {
     @PostMapping(path = "/return/search/tracking")
     public ResponseEntity<ResultDataList> trackingCJ(@RequestBody CJTrackingDto searchData) {
         List<Map<String, String>> data = returnService.searchCreated(searchData);
+        return ResponseEntity.ok().body(responseData.ResultListData(data, ResponseMessage.SUCCESS.name()));
+    }
+
+    @PostMapping(path = "/return/search/order")
+    public ResponseEntity<ResultDataList> order() {
+        List<ReturnOrderDtoM.ReturnOrderGroupDto> data = returnService.searchOrder();
         return ResponseEntity.ok().body(responseData.ResultListData(data, ResponseMessage.SUCCESS.name()));
     }
 }

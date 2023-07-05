@@ -1,5 +1,6 @@
 package com.wms.inwms.domain.returnOrder.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.wms.inwms.domain.returnOrder.ReturnEntity;
 import lombok.*;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,41 @@ import java.time.LocalDate;
  * date           : 2023-06-08
  */
 public class ReturnOrderDtoM {
+
+    @Getter
+    @Setter
+    @Builder
+    public static class ReturnOrderGroupDto {
+        private String orderNumber;
+        private String agency;
+        private Integer qty;
+
+        @QueryProjection
+        public ReturnOrderGroupDto(String orderNumber, String agency, Integer qty) {
+            this.orderNumber = orderNumber;
+            this.agency = agency;
+            this.qty = qty;
+        }
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class ReturnOrderPickingDto {
+        @QueryProjection
+        public ReturnOrderPickingDto(String upperLocation, String lowerLocation, String number, String goodsName) {
+            this.upperLocation = upperLocation;
+            this.lowerLocation = lowerLocation;
+            this.number = number;
+            this.goodsName = goodsName;
+        }
+
+        private String upperLocation;
+        private String lowerLocation;
+        private String number;
+        private String goodsName;
+    }
+
 
     @Getter
     @Setter

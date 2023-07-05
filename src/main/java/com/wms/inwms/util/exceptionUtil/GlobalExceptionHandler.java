@@ -28,24 +28,21 @@ public class GlobalExceptionHandler {
     private final ResponseData responseData;
 
     @ExceptionHandler(NoSuchElementException.class)
-    protected ResponseEntity<ResultData> handleIllegalArgumentException(NoSuchElementException e) {
+    protected ResponseEntity<ResultData> handleNoSuchElementException(NoSuchElementException e) {
+        log.error("NoSuchElementException : " + e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     };
 
-    @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<?> handleCustomException(CustomException e) {
-        return null;
-    }
-
     @ExceptionHandler(IOException.class)
-    protected ResponseEntity<ErrorCode> handleIOException(IOException e) {
-        return null;
+    protected ResponseEntity<ResultData> handleIOException(IOException e) {
+        log.error("handleIOException : " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<ErrorCode> handleIllegalArgumentException(IllegalArgumentException e) {
-        System.out.println("????");
-        return null;
+    protected ResponseEntity<ResultData> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("IllegalArgumentException : " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData.ErrorResultData(e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

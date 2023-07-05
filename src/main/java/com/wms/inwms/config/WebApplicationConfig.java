@@ -25,10 +25,10 @@ public class WebApplicationConfig implements WebMvcConfigurer {
 ////        registry.addConverter(new StringToIntagerConverter());
 //    }
 
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(new ViewInterceptor());
-//    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new ViewInterceptor());
+    }
 
     //톰캣 rewrite 알아보기
     @Override
