@@ -1,5 +1,5 @@
 
-![header](https://capsule-render.vercel.app/api?type=egg&color=auto&height=100&section=header&text=%20&fontSize=20)
+![header](https://capsule-render.vercel.app/api?type=slice&color=auto&height=100&section=header&text=MINI-WMS&fontSize=20)
 # RETURN MINI-WMS
 ### 반품 관리 프로그램 
 - 반품된 상품을 로케이션에 적재 합니다.
