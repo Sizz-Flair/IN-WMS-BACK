@@ -1,15 +1,13 @@
 package com.wms.inwms.domain.user;
 
+import com.wms.inwms.domain.agent.Agent;
 import com.wms.inwms.domain.base.BaseModel;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.Getter;
+
+import javax.persistence.*;
 
 @Entity
+@Getter
 @Table(name = "g_user")
 public class User extends BaseModel<Long> {
     @Id
@@ -45,6 +43,10 @@ public class User extends BaseModel<Long> {
 
     @Column(name = "use_yn")
     private String useYn = "Y";
+
+    @ManyToOne
+    @JoinColumn(name = "agent_id")
+    private Agent agent;
 
     @Embedded
     private UserCredentials userCredentials;

@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends BaseRepo<User, Long> {
     Optional<User> findByUserCredentialsUsername(String paramString);
+    Optional<User> findByName(String userId);
 }

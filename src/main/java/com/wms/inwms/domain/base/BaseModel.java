@@ -2,9 +2,12 @@ package com.wms.inwms.domain.base;
 import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
+import javax.persistence.Version;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.domain.Persistable;
@@ -13,8 +16,9 @@ import org.springframework.data.domain.Persistable;
 @DynamicInsert
 @DynamicUpdate
 public abstract class BaseModel<PK extends Serializable> implements Persistable<PK>, Serializable {
-    private static final long serialVersionUID = 1L;
-
+    @Version
+    @Column(name="version", nullable = false)
+    protected int version;
     @Column(updatable = false)
     public Instant created;
 
