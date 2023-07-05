@@ -1,7 +1,7 @@
 
 ![header](https://capsule-render.vercel.app/api?type=slice&color=auto&height=100&section=header&text=MINI-WMS&fontSize=40)
 <br>
-<img src="https://img.shields.io/badge/Firebase-#FF7139?style=flat-square&logo=firebase&logoColor=white"/>
+<img src="https://img.shields.io/badge/Firebase-FF7139?style=flat-square&logo=firebase&logoColor=white"/>
 ### 반품 관리 프로그램 
 - 반품된 상품을 로케이션에 적재 합니다.
 - 적재된 상품은 로케이션 별로 관리 가능합니다.
