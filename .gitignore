@@ -36,12 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/static/
-
-src/test/
 
 logs/
 
-README.md
-
-*.md
+src/main/resources/static/
