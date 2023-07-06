@@ -1,5 +1,6 @@
 package com.wms.inwms.domain.location.upperlocation.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

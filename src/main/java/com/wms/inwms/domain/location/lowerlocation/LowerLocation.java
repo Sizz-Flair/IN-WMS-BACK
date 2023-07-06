@@ -1,6 +1,7 @@
 package com.wms.inwms.domain.location.lowerlocation;
 
 import com.wms.inwms.domain.base.BaseModel;
+import com.wms.inwms.domain.location.upperlocation.UpperLocation;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -29,8 +30,9 @@ public class LowerLocation extends BaseModel<Long> {
     @Column(name = "low_location_pri")
     private String lowLocationPri;
 
-    @Column(name = "upper_location_id")
-    private Long uppperLocationId;
+    @ManyToOne
+    @JoinColumn(name="upper_location_id")
+    private UpperLocation upperLocation;
 
     @Column(name = "agent_code")
     private String agentCode;
