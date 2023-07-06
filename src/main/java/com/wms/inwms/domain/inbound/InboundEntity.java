@@ -4,6 +4,7 @@ import com.wms.inwms.domain.base.BaseModel;
 import com.wms.inwms.domain.inbound.dto.InboundResultDto;
 import com.wms.inwms.domain.location.lowerlocation.LowerLocation;
 import com.wms.inwms.domain.location.upperlocation.UpperLocation;
+import com.wms.inwms.domain.location.upperlocation.dto.UpperLocationDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,7 +34,7 @@ public class InboundEntity extends BaseModel<Long> {
     @Column(name="state")
     private String state;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="upper_location_id")
     private UpperLocation upperLocation;
 
@@ -65,5 +66,13 @@ public class InboundEntity extends BaseModel<Long> {
                 .upperLocation(this.upperLocation.getUpLocationName())
                 .lowerLocation(this.lowerLocation.getLowLocationName())
                 .mappingNum(this.mappingNum).agentCode(this.agentCode).build();
+    }
+
+    public InboundResultDto.InboundSaveResultDto convertStorageDto() {
+        return InboundResultDto.InboundSaveResultDto.builder()
+                .number(number)
+                .lowerLocation(lowerLocation.getLowLocationName())
+                .state(state)
+                .agentCode(agentCode).build();
     }
 }

@@ -9,6 +9,7 @@ import com.wms.inwms.domain.location.lowerlocation.LowerLocation;
 import com.wms.inwms.domain.location.lowerlocation.LowerLocationService;
 import com.wms.inwms.domain.location.upperlocation.UpperLocation;
 import com.wms.inwms.domain.location.upperlocation.UpperLocationService;
+import com.wms.inwms.domain.location.upperlocation.dto.UpperLocationDto;
 import com.wms.inwms.util.MessageUtil;
 import com.wms.inwms.util.SecurityUserUtil;
 import com.wms.inwms.util.customException.CustomRunException;
@@ -151,5 +152,10 @@ public class InboundService extends BaseService<InboundEntity, Long> {
                 inboundEntities.stream().map(e -> InboundResultDto.InboundSelectResultDto.builder().number(e.getNumber()).state(e.getState()).build()).collect(Collectors.toList());
 
         return resultDtos;
+    }
+
+    public List<InboundResultDto.InboundSaveResultDto> getDetailStorage(String upLocationName) {
+        List<InboundEntity> data = this.select().from(qInbound).where(qInbound.upperLocation.upLocationName.eq(upLocationName)).fetch();
+        return data.stream().map(e -> e.convertStorageDto()).collect(Collectors.toList());
     }
 }
