@@ -15,6 +15,6 @@
 - 적재된 상품은 로케이션 별로 관리 가능합니다.
 - 반품 상품을 관리하여 고객요청에 따라 재송부 가능 합니다.
 - 재송부 상품은 트랙킹 조회가 가능합니다.
-- [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Sizz-Flair)](https://github.com/Sizz-Flair/github-readme-stats)
-[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=Sizz-Flair)](https://github.com/Sizz-Flair/github-readme-stats)
+- [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Sizz-Flair&count_private=true)](https://github.com/Sizz-Flair/github-readme-stats)
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=Sizz-Flair&hide=stars,contribs&count_private=true)](https://github.com/Sizz-Flair/github-readme-stats)
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=auto&height=200&section=footer)
